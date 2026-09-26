@@ -147,6 +147,7 @@ function ss_() {
 
 function sheet_() {
   var ss = ss_();
+  if (ss.getSpreadsheetTimeZone() !== "Asia/Tokyo") ss.setSpreadsheetTimeZone("Asia/Tokyo"); // 新規シートは米国時間で作られるため
   var sh = ss.getSheetByName("responses");
   var h = headers_();
   if (!sh) {
