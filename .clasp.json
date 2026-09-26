@@ -1,0 +1,17 @@
+{
+  "scriptId": "1OUtvz0rXP1vLh7IdqyvpAM8VezzOUDruqSUOcxymAouG_z6aZ5aQ4Hx7",
+  "rootDir": "gas",
+  "parentId": "1jhlc2UbIrCczlgbYzWo3WWjbCVu7i_7QsuRrAltGEMM",
+  "scriptExtensions": [
+    ".js",
+    ".gs"
+  ],
+  "htmlExtensions": [
+    ".html"
+  ],
+  "jsonExtensions": [
+    ".json"
+  ],
+  "filePushOrder": [],
+  "skipSubdirectories": false
+}

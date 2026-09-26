@@ -2,7 +2,7 @@
 // GitHub Pages のページから届いた回答を、スプレッドシートの「responses」に1人1行で書き込む。
 // 「集計」シートは初回に自動で作る（#test の回答は集計から外す）。
 
-var SPREADSHEET_ID = ""; // 空なら、このスクリプトが紐づいているスプレッドシートを使う
+var SPREADSHEET_ID = "1jhlc2UbIrCczlgbYzWo3WWjbCVu7i_7QsuRrAltGEMM"; // 「Noto Day Match 回答」（空なら、紐づいているスプレッドシートを使う）
 
 var CARDS = [
   {id:"heal-near",    k:"静", theme:"癒し",         dist:"近い", title:"A Quiet Day by Nanao Bay"},
