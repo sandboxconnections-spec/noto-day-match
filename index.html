@@ -20,6 +20,7 @@
   --bay:#1F5C63;
   --bay-soft:#E2EEEE;
   --urushi:#A8322D;
+  --urushi-soft:#F5E3E1;
   --slate:#5E6A70;
   --slate-soft:#E8ECED;
   --kin:#8F6B1F;
@@ -31,7 +32,7 @@
   :root{
     color-scheme:dark;
     --paper:#111416;--surface:#1A1F22;--ink:#EDF1EF;--ink-2:#B7C0C3;--ink-3:#89949A;--line:#2D3437;
-    --bay:#62B3BA;--bay-soft:#16302F;--urushi:#E27A73;--slate:#A2AEB3;--slate-soft:#252B2E;--kin:#D8B062;
+    --bay:#62B3BA;--bay-soft:#16302F;--urushi:#E27A73;--urushi-soft:#3A1E1C;--slate:#A2AEB3;--slate-soft:#252B2E;--kin:#D8B062;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.4);
   }
 }
@@ -39,19 +40,21 @@
 [hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-.app{max-width:440px;margin-inline:auto;min-height:100%;display:flex;flex-direction:column;padding-inline:16px;padding-block:calc(18px + env(safe-area-inset-top,0px)) calc(22px + env(safe-area-inset-bottom,0px))}
-.screen{display:flex;flex-direction:column;gap:18px;flex:1}
+.app{max-width:440px;margin-inline:auto;min-height:100%;display:flex;flex-direction:column;padding-inline:16px;padding-block:calc(16px + env(safe-area-inset-top,0px)) calc(20px + env(safe-area-inset-bottom,0px))}
+.screen{display:flex;flex-direction:column;gap:16px;flex:1}
 .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0}
 .h-display{font-family:var(--display);font-weight:700;font-size:clamp(30px,8.4vw,38px);line-height:1.14;margin:0;text-wrap:balance}
-.h2{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.22;margin:0;text-wrap:balance}
+.h2{font-family:var(--display);font-weight:700;font-size:23px;line-height:1.25;margin:0;text-wrap:balance}
 .lead{font-size:17px;color:var(--ink-2);margin:0;max-width:34ch}
 .sub{font-size:14px;color:var(--ink-2);margin:0}
 .note{font-size:13px;color:var(--ink-3);margin:0}
 .spacer{flex:1}
 .btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:16px;padding:13px 18px;border-radius:12px;cursor:pointer;min-height:50px;width:100%}
 .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.small{width:auto;min-height:40px;padding:8px 14px;font-size:14px}
 .btn:disabled{opacity:.35;cursor:not-allowed}
-button:focus-visible,input:focus-visible{outline:3px solid var(--bay);outline-offset:2px}
+.linkbtn{appearance:none;background:none;border:0;color:var(--ink-2);font:inherit;font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px;align-self:center}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--bay);outline-offset:2px}
 
 .deck{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
 .deck span{aspect-ratio:3/4;border-radius:7px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:clamp(15px,4.6vw,21px)}
@@ -63,81 +66,80 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--bay);outline-of
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer;min-height:40px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.chip .mk{display:inline-block;width:1.1em;font-weight:700}
-.chip.plus{background:var(--bay-soft);border-color:var(--bay)}
-.chip.plus .mk{color:var(--bay)}
-.chip.minus{background:var(--slate-soft);border-color:var(--slate);color:var(--ink-2)}
-.chip.minus .mk{color:var(--slate)}
+.chip.good[aria-pressed="true"]{background:var(--bay);border-color:var(--bay);color:#fff}
+.chip.bad[aria-pressed="true"]{background:var(--slate);border-color:var(--slate);color:#fff}
+.chip:disabled{opacity:.35;cursor:not-allowed}
+.chip .mk{font-weight:700;margin-right:6px}
 
 .top{display:flex;align-items:center;gap:12px}
 .progress{flex:1;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
 .progress i{display:block;height:100%;width:0;background:var(--ink);transition:width .3s}
 .count{font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
-.stage{position:relative;flex:1;display:grid;place-items:center;min-height:430px;padding:26px 22px}
-.edge{position:absolute;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;pointer-events:none;white-space:nowrap}
-.edge.up{top:2px;left:50%;transform:translateX(-50%);color:var(--urushi)}
-.edge.down{bottom:2px;left:50%;transform:translateX(-50%);color:var(--kin)}
-.edge.left{left:-14px;top:50%;transform:translateY(-50%) rotate(-90deg);color:var(--slate)}
-.edge.right{right:-14px;top:50%;transform:translateY(-50%) rotate(90deg);color:var(--bay)}
+.stage{position:relative;display:grid;place-items:center;overflow:visible}
 
-.card{position:relative;width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;will-change:transform}
-.card.dragging{cursor:grabbing}
-.card.fly{transition:transform .28s ease-in,opacity .28s ease-in}
-.card.back{transition:transform .2s ease-out}
-.card-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;background:var(--paper);border-bottom:1px solid var(--line)}
-.kanji{font-family:var(--display);font-weight:800;font-size:66px;line-height:1}
+.card{position:relative;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;will-change:transform}
+.card.fly{transition:transform .26s ease-in,opacity .26s ease-in}
+.card.enter{animation:enter .22s ease-out}
+@keyframes enter{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.card-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:var(--paper);border-bottom:1px solid var(--line)}
+.card-photo{position:relative;height:170px;background:var(--line)}
+.card-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.card-photo .drive{position:absolute;right:10px;bottom:10px;background:rgba(17,20,22,.72);color:#fff;border-radius:10px;padding:6px 10px}
+.card-photo .drive .drive-a,.card-photo .drive .drive-l{color:#E3E8E6}
+.kanji{font-family:var(--display);font-weight:800;font-size:60px;line-height:1}
 .drive{display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:1px}
 .drive-a{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.drive-n{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.05;font-variant-numeric:tabular-nums}
+.drive-n{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums}
 .drive-l{font-size:12px;color:var(--ink-2)}
-.card-body{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px}
-.card-title{font-family:var(--display);font-weight:700;font-size:23px;line-height:1.2;margin:0;text-wrap:balance}
-.stops{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.card-body{padding:14px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.card-title{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.2;margin:0;text-wrap:balance}
+.stops{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
 .stops li{position:relative;padding-left:22px;font-size:15px;line-height:1.4}
 .stops li::before{content:"";position:absolute;left:3px;top:.52em;width:8px;height:8px;border-radius:50%;border:2px solid var(--ink);background:var(--surface)}
-.stops li:not(:last-child)::after{content:"";position:absolute;left:6.5px;top:calc(.52em + 10px);bottom:-11px;width:1px;background:var(--line)}
+.stops li:not(:last-child)::after{content:"";position:absolute;left:6.5px;top:calc(.52em + 10px);bottom:-9px;width:1px;background:var(--line)}
 .extra{font-size:13px;color:var(--ink-2);margin:0}
 .base{font-size:12px;color:var(--ink-3);margin:0}
-.stamp{position:absolute;top:104px;left:50%;transform:translateX(-50%) rotate(-8deg);border:3px solid currentColor;border-radius:8px;padding:3px 12px;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.08em;background:var(--surface);opacity:0;pointer-events:none;white-space:nowrap}
-.stamp.love{color:var(--urushi);opacity:1}
-.stamp.like{color:var(--bay);opacity:1}
-.stamp.no{color:var(--slate);opacity:1}
-.stamp.unsure{color:var(--kin);opacity:1}
-.practice .card-body{align-items:center;text-align:center;padding-block:34px}
-.practice .big{font-family:var(--display);font-weight:700;font-size:22px;margin:0}
-.practice .stamp{top:14px}
 
-.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.act{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 4px;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:58px}
-.act .arr{font-size:19px;line-height:1;font-weight:700}
-.act .lbl{font-size:12px;font-weight:700}
-.act.no .arr{color:var(--slate)}.act.unsure .arr{color:var(--kin)}.act.love .arr{color:var(--urushi)}.act.like .arr{color:var(--bay)}
+.ask{font-weight:700;font-size:16px;margin:0;text-align:center}
+.scale{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.rate{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:8px 2px;font:inherit;font-size:11.5px;font-weight:700;line-height:1.2;cursor:pointer;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+.rate .dot{width:12px;height:12px;border-radius:50%;background:var(--c)}
+.rate:active{transform:scale(.97)}
+.scale-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-top:-8px}
 
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.leg{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start}
-.leg .arr{font-size:18px;font-weight:700;line-height:1.3}
-.leg b{display:block;font-size:14px}
-.leg span.d{display:block;font-size:12px;color:var(--ink-2);line-height:1.4}
-.leg.love .arr{color:var(--urushi)}.leg.like .arr{color:var(--bay)}.leg.no .arr{color:var(--slate)}.leg.unsure .arr{color:var(--kin)}
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:flex;flex-direction:column;gap:8px}
+.pair-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0}
+.pair-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.opt .k{font-family:var(--display);font-weight:700;font-size:26px;line-height:1}
+.opt img{display:block;width:100%;height:70px;object-fit:cover;border-radius:8px}
+.opt .t{font-weight:700;font-size:14px;line-height:1.3}
+.opt .s{font-size:12px;color:var(--ink-2)}
+.opt[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
 
 .picklist{display:flex;flex-direction:column;gap:8px}
 .pick{appearance:none;display:flex;align-items:center;gap:12px;text-align:left;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;font:inherit;color:var(--ink);cursor:pointer}
 .pick .k{font-family:var(--display);font-weight:700;font-size:28px;width:38px;text-align:center;flex:none}
 .pick .t{display:block;font-weight:700;font-size:15px;line-height:1.3}
 .pick .s{display:block;font-size:12px;color:var(--ink-3)}
-.pick .tag{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;flex:none}
-.tag.love{color:var(--urushi)}.tag.like{color:var(--bay)}
+.pick .tag{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.04em;flex:none;color:var(--urushi)}
 .pick[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 label.fl{font-weight:700;font-size:14px;display:flex;flex-direction:column;gap:8px}
-input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+input[type="text"],textarea{width:100%;font:inherit;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+textarea{min-height:84px;resize:vertical}
 .picked{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px}
 .picked .k{font-family:var(--display);font-weight:700;font-size:30px}
 .picked .t{font-weight:700}
 
-.result-kanji{font-family:var(--display);font-weight:800;font-size:104px;line-height:1;margin:0}
+.result-kanji{font-family:var(--display);font-weight:800;font-size:96px;line-height:1;margin:0}
 .dist{border-left:3px solid var(--ink);padding-left:12px;margin:0;font-size:15px}
 .save{font-size:13px;color:var(--ink-3);margin:0}
-@media (prefers-reduced-motion: reduce){.card.fly,.card.back,.progress i{transition:none}}
+details.org{border:1px dashed var(--line);border-radius:12px;padding:10px 12px}
+details.org summary{cursor:pointer;font-size:13px;color:var(--ink-2)}
+details.org[open] summary{margin-bottom:10px}
+.org-row{display:flex;flex-direction:column;gap:8px}
+@media (prefers-reduced-motion: reduce){.card.fly,.progress i{transition:none}.card.enter{animation:none}}
 </style>
 </head>
 <body>
@@ -147,8 +149,8 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
     <p class="eyebrow">Noto Peninsula, Japan</p>
     <h1 class="h-display">Which Noto day is yours?</h1>
     <div class="deck" aria-hidden="true"><span>静</span><span>禅</span><span>漆</span><span>匠</span><span>海</span><span>縁</span><span>鮨</span><span>酒</span></div>
-    <p class="lead">Eight ideas for a private day in Noto. Swipe each one, then see your travel type.</p>
-    <ul class="facts"><li>About 3 minutes</li><li>Anonymous</li><li>No sign-up</li></ul>
+    <p class="lead">Eight ideas for a private day in Noto. Tell us which ones you'd book, then see your travel type.</p>
+    <ul class="facts"><li>About 4 minutes</li><li>Anonymous</li><li>No sign-up</li></ul>
     <p class="note">These are early ideas, and some aren't bookable yet. Your answers help us decide what to build.</p>
     <p class="note" id="mode-note" hidden></p>
     <div class="spacer"></div>
@@ -156,7 +158,7 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
   </section>
 
   <section class="screen" id="s-about" hidden>
-    <p class="eyebrow">Step 1 of 3</p>
+    <p class="eyebrow">About you</p>
     <h2 class="h2">A little about you</h2>
     <div class="q"><p class="q-label">Where are you from?</p><div class="chips" id="q-region"></div></div>
     <div class="q"><p class="q-label">Who do you usually travel with?</p><div class="chips" id="q-company"></div></div>
@@ -165,37 +167,37 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
     <button class="btn primary" id="b-about-next" type="button" disabled>Next</button>
   </section>
 
-  <section class="screen" id="s-howto" hidden>
-    <p class="eyebrow">Step 2 of 3</p>
-    <h2 class="h2">Four ways to swipe</h2>
-    <div class="legend">
-      <div class="leg love"><span class="arr" aria-hidden="true">↑</span><div><b>Love it</b><span class="d">I'd book this</span></div></div>
-      <div class="leg like"><span class="arr" aria-hidden="true">→</span><div><b>Like</b><span class="d">Sounds good</span></div></div>
-      <div class="leg no"><span class="arr" aria-hidden="true">←</span><div><b>No</b><span class="d">Not for me</span></div></div>
-      <div class="leg unsure"><span class="arr" aria-hidden="true">↓</span><div><b>Not sure</b><span class="d">I don't get what this is</span></div></div>
+  <section class="screen" id="s-cards" hidden>
+    <div class="top"><div class="progress"><i id="bar"></i></div><span class="count" id="count">1 of 8</span></div>
+    <div class="stage" id="stage"></div>
+    <p class="ask" id="ask">Would you book this day?</p>
+    <div class="scale" id="scale">
+      <button class="rate" type="button" data-r="1" style="--c:var(--slate)"><span class="dot"></span>Definitely<br>not</button>
+      <button class="rate" type="button" data-r="2" style="--c:color-mix(in srgb,var(--slate) 55%,var(--line))"><span class="dot"></span>Probably<br>not</button>
+      <button class="rate" type="button" data-r="3" style="--c:var(--line)"><span class="dot"></span>Maybe</button>
+      <button class="rate" type="button" data-r="4" style="--c:color-mix(in srgb,var(--urushi) 55%,var(--line))"><span class="dot"></span>Probably</button>
+      <button class="rate" type="button" data-r="5" style="--c:var(--urushi)"><span class="dot"></span>Definitely</button>
     </div>
-    <div class="stage" id="p-stage" style="min-height:250px">
-      <span class="edge up">Love it</span><span class="edge down">Not sure</span><span class="edge left">No</span><span class="edge right">Like</span>
-    </div>
-    <p class="sub" id="p-msg">Try it: swipe the practice card any way.</p>
-    <button class="btn primary" id="b-howto-next" type="button" hidden>Start the 8 cards</button>
+    <button class="linkbtn" id="b-unsure" type="button">I don't get what this day is</button>
   </section>
 
-  <section class="screen" id="s-swipe" hidden>
-    <div class="top"><div class="progress"><i id="bar"></i></div><span class="count" id="count">1 of 8</span></div>
-    <div class="stage" id="stage">
-      <span class="edge up">Love it</span><span class="edge down">Not sure</span><span class="edge left">No</span><span class="edge right">Like</span>
-    </div>
-    <div class="actions">
-      <button class="act no" type="button" data-d="no" aria-label="No"><span class="arr" aria-hidden="true">←</span><span class="lbl">No</span></button>
-      <button class="act unsure" type="button" data-d="unsure" aria-label="Not sure"><span class="arr" aria-hidden="true">↓</span><span class="lbl">Not sure</span></button>
-      <button class="act love" type="button" data-d="love" aria-label="Love it"><span class="arr" aria-hidden="true">↑</span><span class="lbl">Love it</span></button>
-      <button class="act like" type="button" data-d="like" aria-label="Like"><span class="arr" aria-hidden="true">→</span><span class="lbl">Like</span></button>
-    </div>
+  <section class="screen" id="s-pairs" hidden>
+    <p class="eyebrow">Near or far</p>
+    <h2 class="h2">Same kind of day, two versions. Which one would you book?</h2>
+    <div class="pairs" id="pairs"></div>
+    <div class="spacer"></div>
+    <button class="btn primary" id="b-pairs-next" type="button" disabled>Next</button>
+  </section>
+
+  <section class="screen" id="s-reason" hidden>
+    <h2 class="h2">What held you back on the longer days?</h2>
+    <p class="sub">Tap any that apply.</p>
+    <div class="chips" id="q-reason"></div>
+    <div class="spacer"></div>
+    <button class="btn primary" id="b-reason-next" type="button">Next</button>
   </section>
 
   <section class="screen" id="s-pick" hidden>
-    <p class="eyebrow">Step 3 of 3</p>
     <h2 class="h2">If you could do only one of these days, which one?</h2>
     <p class="sub">Pick the one you would actually book.</p>
     <div class="picklist" id="picklist"></div>
@@ -215,12 +217,20 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
     <button class="btn primary" id="b-price-next" type="button" disabled>Next</button>
   </section>
 
-  <section class="screen" id="s-words" hidden>
+  <section class="screen" id="s-wplus" hidden>
     <h2 class="h2">Which words draw you in?</h2>
-    <p class="sub">Tap once for words you like. Tap twice for words that put you off.</p>
-    <div class="chips" id="q-words"></div>
+    <p class="sub">Tap any that make you want to go. Tap again to undo.</p>
+    <div class="chips" id="q-wplus"></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-words-next" type="button">Next</button>
+    <button class="btn primary" id="b-wplus-next" type="button">Next</button>
+  </section>
+
+  <section class="screen" id="s-wminus" hidden>
+    <h2 class="h2">Any words that put you off?</h2>
+    <p class="sub">Tap any that make you less interested. Skip if none.</p>
+    <div class="chips" id="q-wminus"></div>
+    <div class="spacer"></div>
+    <button class="btn primary" id="b-wminus-next" type="button">Next</button>
   </section>
 
   <section class="screen" id="s-quake" hidden>
@@ -238,6 +248,16 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
     <p class="dist" id="r-dist" hidden></p>
     <div class="picked" id="r-pick"></div>
     <p class="save" id="r-save" role="status"></p>
+    <details class="org" id="org">
+      <summary>For the organizer: add a note</summary>
+      <div class="org-row">
+        <label class="fl" for="memo">What they said
+          <textarea id="memo" maxlength="500" placeholder="e.g. Chose Zen because they want quiet. Said 3 hours is fine with a good guide."></textarea>
+        </label>
+        <button class="btn small" id="b-memo" type="button">Save note</button>
+        <p class="note" id="memo-status" role="status"></p>
+      </div>
+    </details>
     <div class="spacer"></div>
     <button class="btn primary" id="b-again" type="button">Next person</button>
   </section>
@@ -251,26 +271,33 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
   // Where answers go: the Google Apps Script web app that writes one row per person into the Google Sheet.
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbzHTqDPSPYme8u4VaA-Rhgxga4aithHh5zLy3XVImxCZj3mwoVZnugkNUpZGCyqpoab9g/exec";
 
+  // photo: path to an image in this repo (e.g. "img/heal-near.jpg"). Photos show only when all eight cards have one.
   var CARDS = [
-    {id:"heal-near", theme:"heal", dist:"near", k:"静", title:"A Quiet Day by Nanao Bay",
+    {id:"heal-near", theme:"heal", dist:"near", k:"静", photo:"", title:"A Quiet Day by Nanao Bay",
      stops:["Zazen meditation at a local Zen temple","Lunch in Nanao","Tea in a host's tatami room","Five silent minutes by the sea"]},
-    {id:"heal-far", theme:"heal", dist:"far", k:"禅", title:"Zen at Sojiji Soin",
+    {id:"heal-far", theme:"heal", dist:"far", k:"禅", photo:"", title:"Zen at Sojiji Soin",
      stops:["Zazen at Sojiji Soin, a Zen temple founded in 1321","Lunch in a small port town","Tea in a host's tatami room","An evening by candlelight"]},
-    {id:"culture-near", theme:"culture", dist:"near", k:"漆", title:"Makers of Ipponsugi Street",
+    {id:"culture-near", theme:"culture", dist:"near", k:"漆", photo:"", title:"Makers of Ipponsugi Street",
      stops:["Carve gold into lacquer (chinkin) with a local master","A 100-year-old soy sauce brewery","A traditional Japanese candle maker","An evening by candlelight on a 600-year-old street"]},
-    {id:"culture-far", theme:"culture", dist:"far", k:"匠", title:"Lacquer Masters of Wajima",
+    {id:"culture-far", theme:"culture", dist:"far", k:"匠", photo:"", title:"Lacquer Masters of Wajima",
      stops:["Sojiji Soin, a Zen temple founded in 1321","Lunch on the coast","The workshop of a Wajima-nuri lacquer artisan","Tea in a host's tatami room"]},
-    {id:"active-near", theme:"active", dist:"near", k:"海", title:"Paddle and Walk Noto Island",
+    {id:"active-near", theme:"active", dist:"near", k:"海", photo:"", title:"Paddle and Walk Noto Island",
      stops:["Private stand-up paddleboarding on Nanao Bay","Lunch on Noto Island","Walk across the 1 km Notojima Bridge","An evening by candlelight"]},
-    {id:"local-near", theme:"local", dist:"near", k:"縁", title:"Stories of Ipponsugi",
+    {id:"local-near", theme:"local", dist:"near", k:"縁", photo:"", title:"Stories of Ipponsugi",
      stops:["Tea at a local host's home","Walk a 600-year-old merchant street with its shopkeepers","Hear how they are rebuilding after the 2024 earthquake","Dinner at a neighborhood restaurant"]},
-    {id:"food-near", theme:"food", dist:"near", k:"鮨", title:"Sushi, Three Ways",
+    {id:"food-near", theme:"food", dist:"near", k:"鮨", photo:"", title:"Sushi, Three Ways",
      stops:["Carve your own lacquer chopsticks","Lunch at a local sushi counter","Make nigiri with a chef in a private session","Dinner at a master's counter the locals love"],
      extra:"Also: a 100-year-old soy sauce brewery and this year's new rice"},
-    {id:"food-far", theme:"food", dist:"far", k:"酒", title:"Sake and Sushi of Oku-Noto",
+    {id:"food-far", theme:"food", dist:"far", k:"酒", photo:"", title:"Sake and Sushi of Oku-Noto",
      stops:["A sake brewery in brewing season","Sushi lunch in a fishing port","Walk the port town","Dinner at a master's counter the locals love"]}
   ];
   var BY = {}; CARDS.forEach(function(c){ BY[c.id] = c; });
+  var USE_PHOTOS = CARDS.every(function(c){ return !!c.photo; });
+  var PAIRS = [
+    {theme:"heal", label:"A quiet day", near:"heal-near", far:"heal-far"},
+    {theme:"culture", label:"Craft and culture", near:"culture-near", far:"culture-far"},
+    {theme:"food", label:"Sushi", near:"food-near", far:"food-far"}
+  ];
 
   var TYPES = {
     heal:{name:"Quiet Seeker", k:"静", desc:"You travel to slow down. Space, stillness, and time with nothing scheduled."},
@@ -279,14 +306,14 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
     local:{name:"Local Connector", k:"縁", desc:"For you, the best part of a trip is the people you meet."},
     food:{name:"Food Pilgrim", k:"鮨", desc:"You would cross a peninsula for the right meal."}
   };
-  var STAMP = {love:"LOVE IT", like:"LIKE", no:"NO", unsure:"NOT SURE"};
-  var VAL = {love:2, like:1, no:0, unsure:0};
-  var STEPS = ["about","howto","swipe","pick","price","words","quake"];
+  var RATE_LABEL = {1:"Definitely not", 2:"Probably not", 3:"Maybe", 4:"Probably", 5:"Definitely", 0:"Didn't get it"};
+  var STEPS = ["about","cards","pairs","reason","pick","price","wplus","wminus","quake"];
 
   var REGIONS = ["Europe","North America","Latin America","Asia","Oceania","Middle East & Africa"];
   var COMPANY = ["Solo","Partner","Friends","Family"];
   var SPEND = ["Under $50","$50–150","$150–400","$400–1,000","Over $1,000"];
   var PRICE = ["Under $100","$100–250","$250–500","$500–1,000","Over $1,000"];
+  var REASONS = ["Too long in the car","I don't know these places","Not my kind of day","Looks expensive","Something else"];
   var WORDS = ["Unhurried","Ma (the space between)","Zen","Decide nothing","Hidden gem","Master craftsman","Hands-on","Local life","Private","Slow travel","Rebuilding","Off the beaten path"];
   var QUAKE = ["No","A little","Yes, a lot","I didn't know about it"];
 
@@ -299,6 +326,7 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
   function shuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function hrs(c){ return c.dist === "far" ? "3 hrs" : "1 hr"; }
   function carLine(c){ return "About " + hrs(c) + " in the car, all day"; }
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
   function uuid(){
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
     var b = new Uint8Array(16); crypto.getRandomValues(b); b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
@@ -319,7 +347,7 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
     if (!ENDPOINT) return "preview";
     for (var attempt = 0; attempt < 2; attempt++) {
       try { await post(payload); flushOutbox(); return "saved"; }
-      catch (e) { await new Promise(function(r){ setTimeout(r, 700 + Math.random() * 700); }); }
+      catch (e) { await sleep(700 + Math.random() * 700); }
     }
     var box = readOutbox(); box.push(payload);
     return writeOutbox(box) ? "queued" : "failed";
@@ -337,19 +365,19 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
   }
 
   // ---------- state ----------
-  var S, current = "start", topCard = null, busy = false, practiceDone = false, practiceEl = null;
+  var S, current = "start", busy = false, topCard = null;
   function fresh(){
-    S = {id:uuid(), about:{}, order:shuffle(CARDS.map(function(c){ return c.id; })), idx:0, swipes:[], pick:null, why:"", price:null, words:{}, quake:null,
-         t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0};
-    $("why").value = "";
+    S = {id:uuid(), about:{}, order:shuffle(CARDS.map(function(c){ return c.id; })), idx:0, ratings:[], pairs:{}, farReasons:[],
+         pick:null, why:"", price:null, wordsPlus:[], wordsMinus:[], quake:null, t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0, saved:false};
+    $("why").value = ""; $("memo").value = ""; $("memo-status").textContent = ""; $("org").open = false;
     buildChoice("q-region", REGIONS, function(v){ S.about.region = v; checkAbout(); });
     buildChoice("q-company", COMPANY, function(v){ S.about.company = v; checkAbout(); });
     buildChoice("q-spend", SPEND, function(v){ S.about.maxSpend = v; checkAbout(); });
     buildChoice("q-price", PRICE, function(v){ S.price = v; $("b-price-next").disabled = false; });
     buildChoice("q-quake", QUAKE, function(v){ S.quake = v; $("b-quake-next").disabled = false; });
-    buildWords();
-    $("b-about-next").disabled = true; $("b-price-next").disabled = true; $("b-quake-next").disabled = true; $("b-pick-next").disabled = true;
-    practiceDone = false; $("b-howto-next").hidden = true; $("p-msg").textContent = "Try it: swipe the practice card any way.";
+    buildMulti("q-reason", REASONS, S.farReasons, "", null);
+    buildMulti("q-wplus", WORDS, S.wordsPlus, "good", "✓");
+    $("b-about-next").disabled = true; $("b-price-next").disabled = true; $("b-quake-next").disabled = true; $("b-pick-next").disabled = true; $("b-pairs-next").disabled = true;
   }
   function checkAbout(){ $("b-about-next").disabled = !(S.about.region && S.about.company && S.about.maxSpend); }
   function closeStep(){
@@ -369,163 +397,135 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
       box.appendChild(b);
     });
   }
-  function buildWords(){
-    var box = $("q-words"); box.innerHTML = "";
-    WORDS.forEach(function(w){
+  // Multi-select: each tap adds or removes the word from `list`.
+  function buildMulti(id, options, list, tone, mark, disabled){
+    var box = $(id); box.innerHTML = "";
+    options.forEach(function(o){
       var b = document.createElement("button");
-      b.type = "button"; b.className = "chip";
-      var mk = document.createElement("span"); mk.className = "mk"; mk.setAttribute("aria-hidden", "true");
-      var tx = document.createElement("span"); tx.textContent = w;
+      b.type = "button"; b.className = "chip" + (tone ? " " + tone : "");
+      b.setAttribute("aria-pressed", list.indexOf(o) >= 0 ? "true" : "false");
+      if (disabled && disabled.indexOf(o) >= 0) { b.disabled = true; b.title = "You chose this as a word that draws you in"; }
+      var mk = document.createElement("span"); mk.className = "mk"; mk.setAttribute("aria-hidden", "true"); mk.textContent = list.indexOf(o) >= 0 && mark ? mark : "";
+      var tx = document.createElement("span"); tx.textContent = o;
       b.appendChild(mk); b.appendChild(tx);
-      b.setAttribute("aria-label", w + ": no answer");
       b.addEventListener("click", function(){
-        var v = S.words[w] || 0; v = v === 0 ? 1 : (v === 1 ? -1 : 0);
-        if (v === 0) delete S.words[w]; else S.words[w] = v;
-        b.classList.toggle("plus", v === 1); b.classList.toggle("minus", v === -1);
-        mk.textContent = v === 1 ? "○" : (v === -1 ? "×" : "");
-        b.setAttribute("aria-label", w + ": " + (v === 1 ? "draws me in" : (v === -1 ? "puts me off" : "no answer")));
+        var i = list.indexOf(o);
+        if (i >= 0) list.splice(i, 1); else list.push(o);
+        var on = list.indexOf(o) >= 0;
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+        mk.textContent = on && mark ? mark : "";
       });
       box.appendChild(b);
     });
   }
 
   // ---------- screens ----------
-  var SCREENS = ["start","about","howto","swipe","pick","price","words","quake","result"];
+  var SCREENS = ["start","about","cards","pairs","reason","pick","price","wplus","wminus","quake","result"];
   function show(name){
     closeStep();
     SCREENS.forEach(function(n){ $("s-" + n).hidden = (n !== name); });
     current = name; window.scrollTo(0, 0);
     if (STEPS.indexOf(name) >= 0) { S.stepName = name; S.stepStart = Date.now(); }
-    if (name === "howto") renderPractice();
-    if (name === "swipe") renderCard();
+    if (name === "cards") renderCard();
+    if (name === "pairs") renderPairs();
     if (name === "pick") renderPick();
     if (name === "price") $("price-card").innerHTML = pickedHtml(BY[S.pick]);
+    if (name === "wminus") buildMulti("q-wminus", WORDS, S.wordsMinus, "bad", "✗", S.wordsPlus);
   }
   function pickedHtml(c){ return '<span class="k" aria-hidden="true">' + c.k + '</span><div><div class="t">' + esc(c.title) + '</div><div class="note">' + esc(carLine(c)) + '</div></div>'; }
 
-  // ---------- cards & swiping ----------
+  // ---------- cards ----------
   function cardEl(c){
     var a = document.createElement("article");
-    a.className = "card"; a.setAttribute("aria-label", c.title);
+    a.className = "card enter"; a.setAttribute("aria-label", c.title);
     var stops = c.stops.map(function(s){ return "<li>" + esc(s) + "</li>"; }).join("");
-    a.innerHTML =
-      '<div class="card-hero"><span class="kanji" aria-hidden="true">' + c.k + '</span>' +
-      '<div class="drive"><span class="drive-a">About</span><span class="drive-n">' + hrs(c) + '</span><span class="drive-l">in the car, all day</span></div></div>' +
+    var drive = '<div class="drive"><span class="drive-a">About</span><span class="drive-n">' + hrs(c) + '</span><span class="drive-l">in the car, all day</span></div>';
+    var hero = USE_PHOTOS
+      ? '<div class="card-photo"><img src="' + esc(c.photo) + '" alt="">' + drive + '</div>'
+      : '<div class="card-hero"><span class="kanji" aria-hidden="true">' + c.k + '</span>' + drive + '</div>';
+    a.innerHTML = hero +
       '<div class="card-body"><h3 class="card-title">' + esc(c.title) + '</h3><ol class="stops">' + stops + '</ol>' +
       (c.extra ? '<p class="extra">' + esc(c.extra) + '</p>' : '') +
-      '<p class="base">Starts and ends in Nanao</p></div>' +
-      '<div class="stamp" aria-hidden="true"></div>';
+      '<p class="base">Starts and ends in Nanao</p></div>';
     return a;
   }
-  function practiceCard(){
-    var a = document.createElement("article");
-    a.className = "card practice"; a.setAttribute("aria-label", "Practice card");
-    a.innerHTML = '<div class="card-body"><p class="big">Practice card</p><p class="note">Drag me up, down, left or right.</p></div><div class="stamp" aria-hidden="true"></div>';
-    return a;
-  }
-  function dirOf(dx, dy, final){
-    var ax = Math.abs(dx), ay = Math.abs(dy), th = final ? 70 : 22;
-    if (Math.max(ax, ay) < th) return null;
-    if (ax > ay) return dx > 0 ? "like" : "no";
-    return dy < 0 ? "love" : "unsure";
-  }
-  function setStamp(el, d){
-    var st = el.querySelector(".stamp"); if (!st) return;
-    st.className = "stamp" + (d ? " " + d : ""); st.textContent = d ? STAMP[d] : "";
-  }
-  function attachSwipe(el, onDecide){
-    var sx = 0, sy = 0, dx = 0, dy = 0, down = false;
-    el.addEventListener("pointerdown", function(e){
-      if (busy) return;
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-      down = true; sx = e.clientX; sy = e.clientY; dx = dy = 0;
-      el.classList.remove("back"); el.classList.add("dragging");
-      try { el.setPointerCapture(e.pointerId); } catch (err) {}
-    });
-    el.addEventListener("pointermove", function(e){
-      if (!down) return;
-      dx = e.clientX - sx; dy = e.clientY - sy;
-      el.style.transform = "translate(" + dx + "px," + dy + "px) rotate(" + (dx / 22) + "deg)";
-      setStamp(el, dirOf(dx, dy, false));
-    });
-    function end(){
-      if (!down) return; down = false; el.classList.remove("dragging");
-      var d = dirOf(dx, dy, true);
-      if (d) { busy = true; fly(el, d).then(function(){ onDecide(d); }); }
-      else { el.classList.add("back"); el.style.transform = ""; setStamp(el, null); }
-    }
-    el.addEventListener("pointerup", end);
-    el.addEventListener("pointercancel", end);
-  }
-  function fly(el, d){
-    return new Promise(function(res){
-      setStamp(el, d);
-      if (reduced) { setTimeout(res, 120); return; }
-      var W = window.innerWidth, H = window.innerHeight;
-      var t = {like:[W, 0, 18], no:[-W, 0, -18], love:[0, -H, 0], unsure:[0, H, 0]}[d];
-      el.classList.remove("back"); el.classList.add("fly");
-      requestAnimationFrame(function(){
-        el.style.transform = "translate(" + t[0] + "px," + t[1] + "px) rotate(" + t[2] + "deg)";
-        el.style.opacity = "0";
-      });
-      setTimeout(res, 290);
-    });
-  }
-
-  function renderPractice(){
-    var stage = $("p-stage");
-    stage.querySelectorAll(".card").forEach(function(n){ n.remove(); });
-    practiceEl = practiceCard(); stage.appendChild(practiceEl); busy = false;
-    attachSwipe(practiceEl, practiceResult);
-  }
-  function practiceResult(d){
-    practiceDone = true; busy = false;
-    $("p-msg").textContent = "That was “" + ({love:"Love it", like:"Like", no:"No", unsure:"Not sure"})[d] + ".” You're ready.";
-    $("b-howto-next").hidden = false;
-    setTimeout(function(){ if (current === "howto") renderPractice(); }, 350);
-  }
-
   function renderCard(){
-    var stage = $("stage");
-    stage.querySelectorAll(".card").forEach(function(n){ n.remove(); });
+    var stage = $("stage"); stage.innerHTML = "";
     var c = BY[S.order[S.idx]];
     topCard = cardEl(c); stage.appendChild(topCard); busy = false;
-    attachSwipe(topCard, decide);
     S.shownAt = performance.now();
     $("count").textContent = (S.idx + 1) + " of " + S.order.length;
     $("bar").style.width = (S.idx / S.order.length * 100) + "%";
   }
-  function decide(d){
-    S.swipes.push({id:S.order[S.idx], v:d, ms:Math.round(performance.now() - S.shownAt), pos:S.idx + 1});
-    S.idx++;
-    if (S.idx >= S.order.length) { $("bar").style.width = "100%"; show("pick"); }
-    else renderCard();
+  function fly(el, r){
+    return new Promise(function(res){
+      if (reduced) { setTimeout(res, 80); return; }
+      var W = window.innerWidth, H = window.innerHeight;
+      var t = r >= 4 ? [W, 0, 14] : (r >= 1 && r <= 2 ? [-W, 0, -14] : [0, H * 0.6, 0]);
+      el.classList.remove("enter"); el.classList.add("fly");
+      requestAnimationFrame(function(){ el.style.transform = "translate(" + t[0] + "px," + t[1] + "px) rotate(" + t[2] + "deg)"; el.style.opacity = "0"; });
+      setTimeout(res, 270);
+    });
   }
-  function trigger(d){
-    if (busy || !topCard) return;
-    busy = true; fly(topCard, d).then(function(){ decide(d); });
+  function rate(r){
+    if (busy || !topCard || current !== "cards") return;
+    busy = true;
+    S.ratings.push({id:S.order[S.idx], r:r, ms:Math.round(performance.now() - S.shownAt), pos:S.idx + 1});
+    fly(topCard, r).then(function(){
+      S.idx++;
+      if (S.idx >= S.order.length) { $("bar").style.width = "100%"; show("pairs"); }
+      else renderCard();
+    });
   }
-  document.querySelectorAll(".act").forEach(function(b){ b.addEventListener("click", function(){ trigger(b.getAttribute("data-d")); }); });
+  document.querySelectorAll(".rate").forEach(function(b){ b.addEventListener("click", function(){ rate(Number(b.getAttribute("data-r"))); }); });
+  $("b-unsure").addEventListener("click", function(){ rate(0); });
   document.addEventListener("keydown", function(e){
-    var d = {ArrowRight:"like", ArrowLeft:"no", ArrowUp:"love", ArrowDown:"unsure"}[e.key];
-    if (!d) return;
-    if (current === "swipe") { e.preventDefault(); trigger(d); }
-    else if (current === "howto" && practiceEl && !busy) { e.preventDefault(); busy = true; fly(practiceEl, d).then(function(){ practiceResult(d); }); }
+    if (current !== "cards") return;
+    if (/^[1-5]$/.test(e.key)) { e.preventDefault(); rate(Number(e.key)); }
+    else if (e.key === "?" || e.key === "0") { e.preventDefault(); rate(0); }
   });
+  function ratingOf(id){ for (var i = 0; i < S.ratings.length; i++) if (S.ratings[i].id === id) return S.ratings[i].r; return null; }
+
+  // ---------- near vs far ----------
+  function renderPairs(){
+    var box = $("pairs"); box.innerHTML = "";
+    PAIRS.forEach(function(p){
+      var wrap = document.createElement("div"); wrap.className = "pair";
+      var lab = document.createElement("p"); lab.className = "pair-label"; lab.textContent = p.label;
+      var opts = document.createElement("div"); opts.className = "pair-opts";
+      ["near", "far"].forEach(function(side){
+        var c = BY[p[side]];
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "opt"; b.setAttribute("aria-pressed", S.pairs[p.theme] === side ? "true" : "false");
+        b.innerHTML = (USE_PHOTOS ? '<img src="' + esc(c.photo) + '" alt="">' : '<span class="k" aria-hidden="true">' + c.k + '</span>') +
+          '<span class="t">' + esc(c.title) + '</span><span class="s">' + esc(carLine(c)) + '</span>';
+        b.addEventListener("click", function(){
+          opts.querySelectorAll(".opt").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
+          b.setAttribute("aria-pressed", "true"); S.pairs[p.theme] = side;
+          $("b-pairs-next").disabled = PAIRS.some(function(q){ return !S.pairs[q.theme]; });
+        });
+        opts.appendChild(b);
+      });
+      wrap.appendChild(lab); wrap.appendChild(opts); box.appendChild(wrap);
+    });
+  }
+  function needsReason(){
+    return PAIRS.some(function(p){ var r = ratingOf(p.far); return r !== null && r <= 3; });
+  }
 
   // ---------- pick ----------
   function renderPick(){
     var list = $("picklist"); list.innerHTML = "";
-    var rank = {love:0, like:1, unsure:2, no:3};
-    var items = S.swipes.filter(function(s){ return s.v === "love" || s.v === "like"; });
-    if (!items.length) items = S.swipes.slice();
-    items.sort(function(a, b){ return rank[a.v] - rank[b.v]; });
+    var items = S.ratings.filter(function(s){ return s.r >= 4; });
+    if (!items.length) items = S.ratings.filter(function(s){ return s.r >= 3; });
+    if (!items.length) items = S.ratings.slice();
+    items.sort(function(a, b){ return b.r - a.r; });
     items.forEach(function(s){
       var c = BY[s.id];
       var b = document.createElement("button");
       b.type = "button"; b.className = "pick"; b.setAttribute("aria-pressed", "false"); b.setAttribute("data-id", c.id);
       b.innerHTML = '<span class="k" aria-hidden="true">' + c.k + '</span><span><span class="t">' + esc(c.title) + '</span><span class="s">' + esc(carLine(c)) + '</span></span>' +
-        (s.v === "love" ? '<span class="tag love">Loved</span>' : (s.v === "like" ? '<span class="tag like">Liked</span>' : ''));
+        (s.r >= 4 ? '<span class="tag">' + esc(RATE_LABEL[s.r]) + '</span>' : '');
       b.addEventListener("click", function(){
         list.querySelectorAll(".pick").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
         b.setAttribute("aria-pressed", "true"); S.pick = c.id; $("b-pick-next").disabled = false;
@@ -536,42 +536,29 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
 
   // ---------- result ----------
   function computeType(){
-    var score = {}, cnt = {}, near = 0, nearN = 0, far = 0, farN = 0;
-    CARDS.forEach(function(c){ score[c.theme] = 0; cnt[c.theme] = (cnt[c.theme] || 0) + 1; });
-    S.swipes.forEach(function(s){
-      var c = BY[s.id], v = VAL[s.v];
-      score[c.theme] += v;
-      if (c.dist === "near") { near += v; nearN++; } else { far += v; farN++; }
-    });
-    var pickTheme = S.pick ? BY[S.pick].theme : null, best = pickTheme, bestV = 0;
-    Object.keys(score).forEach(function(t){
-      var v = score[t] / cnt[t];
-      if (v > bestV || (v === bestV && v > 0 && t === pickTheme)) { best = t; bestV = v; }
-    });
-    var road = null;
-    if (near + far > 0 && nearN && farN) road = (far / farN) >= (near / nearN);
-    return {type:best || "heal", road:road};
+    var type = S.pick ? BY[S.pick].theme : "heal";
+    var farCount = PAIRS.filter(function(p){ return S.pairs[p.theme] === "far"; }).length;
+    return {type:type, road:farCount >= 2, farCount:farCount};
   }
   async function finish(){
     closeStep();
     var r = computeType(), T = TYPES[r.type];
     $("r-kanji").textContent = T.k; $("r-type").textContent = T.name; $("r-desc").textContent = T.desc;
-    var dist = $("r-dist");
-    if (r.road === null) dist.hidden = true;
-    else { dist.hidden = false; dist.textContent = r.road ? "Road tripper: a long drive is fine when the day is worth it." : "Stay close: you would rather spend the day there than on the road."; }
+    var dist = $("r-dist"); dist.hidden = false;
+    dist.textContent = r.road ? "Road tripper: a long drive is fine when the day is worth it." : "Stay close: you would rather spend the day there than on the road.";
     $("r-pick").innerHTML = '<span class="k" aria-hidden="true">' + BY[S.pick].k + '</span><div><div class="note">Your one day</div><div class="t">' + esc(BY[S.pick].title) + '</div></div>';
     $("r-save").textContent = "Saving…";
     show("result");
     var payload = {
-      v:2, id:S.id, createdAt:new Date().toISOString(), src:SRC,
+      v:3, id:S.id, createdAt:new Date().toISOString(), src:SRC,
       lang:(navigator.language || "").slice(0, 20), mobile:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
       about:{region:S.about.region || "", company:S.about.company || "", maxSpend:S.about.maxSpend || ""},
-      order:S.order, swipes:S.swipes, pick:S.pick, why:(S.why || "").slice(0, 200), price:S.price || "",
-      words:S.words, quake:S.quake || "", type:r.type, roadTrip:r.road, durationMs:Date.now() - S.t0, steps:S.steps
+      order:S.order, ratings:S.ratings, pairs:S.pairs, farReasons:S.farReasons, pick:S.pick, why:(S.why || "").slice(0, 200), price:S.price || "",
+      wordsPlus:S.wordsPlus, wordsMinus:S.wordsMinus, quake:S.quake || "", type:r.type, roadTrip:r.road, durationMs:Date.now() - S.t0, steps:S.steps
     };
     window.__ndmLast = payload;
     var status = await save(payload);
-    window.__ndmStatus = status;
+    window.__ndmStatus = status; S.saved = status === "saved";
     $("r-save").textContent = {
       saved:"Saved. Thank you!",
       queued:"Saved on this phone. It will upload the next time this page opens online.",
@@ -579,15 +566,25 @@ input[type="text"]{width:100%;font:inherit;font-size:16px;padding:12px 14px;bord
       failed:"This answer couldn't be saved. Please tell the organizer."
     }[status];
   }
+  async function saveMemo(){
+    var text = $("memo").value.trim();
+    if (!text) { $("memo-status").textContent = "Write a note first."; return; }
+    $("memo-status").textContent = "Saving…";
+    try { await post({kind:"memo", id:S.id, memo:text.slice(0, 500)}); $("memo-status").textContent = "Note saved."; window.__ndmMemo = "saved"; }
+    catch (e) { $("memo-status").textContent = "Couldn't save the note. The answer itself may still be uploading; try again in a moment."; window.__ndmMemo = "failed"; }
+  }
 
   // ---------- wiring ----------
   $("b-start").addEventListener("click", function(){ show("about"); });
-  $("b-about-next").addEventListener("click", function(){ show("howto"); });
-  $("b-howto-next").addEventListener("click", function(){ show("swipe"); });
+  $("b-about-next").addEventListener("click", function(){ show("cards"); });
+  $("b-pairs-next").addEventListener("click", function(){ show(needsReason() ? "reason" : "pick"); });
+  $("b-reason-next").addEventListener("click", function(){ show("pick"); });
   $("b-pick-next").addEventListener("click", function(){ S.why = $("why").value.trim(); show("price"); });
-  $("b-price-next").addEventListener("click", function(){ show("words"); });
-  $("b-words-next").addEventListener("click", function(){ show("quake"); });
+  $("b-price-next").addEventListener("click", function(){ show("wplus"); });
+  $("b-wplus-next").addEventListener("click", function(){ show("wminus"); });
+  $("b-wminus-next").addEventListener("click", function(){ show("quake"); });
   $("b-quake-next").addEventListener("click", function(){ finish(); });
+  $("b-memo").addEventListener("click", saveMemo);
   $("b-again").addEventListener("click", function(){ fresh(); show("start"); });
 
   var note = $("mode-note");

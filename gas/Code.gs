@@ -1,37 +1,45 @@
 // Noto Day Match — 受け口（Google Apps Script のウェブアプリ）
 // GitHub Pages のページから届いた回答を、スプレッドシートの「responses」に1人1行で書き込む。
 // 「集計」シートは初回に自動で作る（#test の回答は集計から外す）。
+// 版が変わって列の並びが変わったときは、古いシートの名前に日時を付けて残し、新しいシートを作り直す。
 
 var SPREADSHEET_ID = "1jhlc2UbIrCczlgbYzWo3WWjbCVu7i_7QsuRrAltGEMM"; // 「Noto Day Match 回答」（空なら、紐づいているスプレッドシートを使う）
 
 var CARDS = [
-  {id:"heal-near",    k:"静", theme:"癒し",         dist:"近い", title:"A Quiet Day by Nanao Bay"},
-  {id:"heal-far",     k:"禅", theme:"癒し",         dist:"遠い", title:"Zen at Sojiji Soin"},
-  {id:"culture-near", k:"漆", theme:"カルチャー",   dist:"近い", title:"Makers of Ipponsugi Street"},
-  {id:"culture-far",  k:"匠", theme:"カルチャー",   dist:"遠い", title:"Lacquer Masters of Wajima"},
+  {id:"heal-near",    k:"静", theme:"癒し",           dist:"近い", title:"A Quiet Day by Nanao Bay"},
+  {id:"heal-far",     k:"禅", theme:"癒し",           dist:"遠い", title:"Zen at Sojiji Soin"},
+  {id:"culture-near", k:"漆", theme:"カルチャー",     dist:"近い", title:"Makers of Ipponsugi Street"},
+  {id:"culture-far",  k:"匠", theme:"カルチャー",     dist:"遠い", title:"Lacquer Masters of Wajima"},
   {id:"active-near",  k:"海", theme:"アクティビティ", dist:"近い", title:"Paddle and Walk Noto Island"},
-  {id:"local-near",   k:"縁", theme:"地元の人",     dist:"近い", title:"Stories of Ipponsugi"},
-  {id:"food-near",    k:"鮨", theme:"食（寿司）",   dist:"近い", title:"Sushi, Three Ways"},
-  {id:"food-far",     k:"酒", theme:"食（寿司）",   dist:"遠い", title:"Sake and Sushi of Oku-Noto"}
+  {id:"local-near",   k:"縁", theme:"地元の人",       dist:"近い", title:"Stories of Ipponsugi"},
+  {id:"food-near",    k:"鮨", theme:"食（寿司）",     dist:"近い", title:"Sushi, Three Ways"},
+  {id:"food-far",     k:"酒", theme:"食（寿司）",     dist:"遠い", title:"Sake and Sushi of Oku-Noto"}
 ];
-var CHOICES = ["love", "like", "no", "unsure"];
-var STEPS = ["about", "howto", "swipe", "pick", "price", "words", "quake"];
+var PAIRS = [
+  {theme:"heal",    ja:"癒し",       near:"heal-near",    far:"heal-far"},
+  {theme:"culture", ja:"カルチャー", near:"culture-near", far:"culture-far"},
+  {theme:"food",    ja:"食（寿司）", near:"food-near",    far:"food-far"}
+];
+var STEPS = ["about", "cards", "pairs", "reason", "pick", "price", "wplus", "wminus", "quake"];
 var REGIONS = ["Europe", "North America", "Latin America", "Asia", "Oceania", "Middle East & Africa"];
 var COMPANY = ["Solo", "Partner", "Friends", "Family"];
 var SPEND = ["Under $50", "$50–150", "$150–400", "$400–1,000", "Over $1,000"];
 var PRICE = ["Under $100", "$100–250", "$250–500", "$500–1,000", "Over $1,000"];
+var REASONS = ["Too long in the car", "I don't know these places", "Not my kind of day", "Looks expensive", "Something else"];
 var WORDS = ["Unhurried", "Ma (the space between)", "Zen", "Decide nothing", "Hidden gem", "Master craftsman", "Hands-on", "Local life", "Private", "Slow travel", "Rebuilding", "Off the beaten path"];
 var QUAKE = ["No", "A little", "Yes, a lot", "I didn't know about it"];
 var TYPES = {heal:"Quiet Seeker", culture:"Culture Diver", active:"Active Explorer", local:"Local Connector", food:"Food Pilgrim"};
+var TYPE_JA = {heal:"癒し", culture:"カルチャー", active:"アクティビティ", local:"地元の人", food:"食"};
 var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 function headers_() {
   var h = ["received_at", "id", "created_at", "src", "test", "lang", "device", "region", "company", "max_spend",
            "pick", "pick_title", "why", "price", "quake", "type", "road_trip", "total_sec"];
   CARDS.forEach(function (c) { h.push(c.id, c.id + "_sec", c.id + "_pos"); });
-  h.push("words_plus", "words_minus");
+  PAIRS.forEach(function (p) { h.push("pair_" + p.theme); });
+  h.push("far_reasons", "words_plus", "words_minus");
   STEPS.forEach(function (s) { h.push("step_" + s + "_sec"); });
-  h.push("raw_json");
+  h.push("memo", "raw_json");
   return h;
 }
 
@@ -43,6 +51,16 @@ function doPost(e) {
     var body = e && e.postData ? e.postData.contents : "";
     if (!body || body.length > 30000) return out_({ok: false, error: "bad_size"});
     var p = JSON.parse(body);
+    if (p && p.kind === "memo") {
+      if (!UUID_RE.test(String(p.id || ""))) return out_({ok: false, error: "bad_id"});
+      if (typeof p.memo !== "string" || !p.memo.trim() || p.memo.length > 500) return out_({ok: false, error: "bad_memo"});
+      lock.waitLock(20000); locked = true;
+      var shm = sheet_();
+      var rm = findRow_(shm, p.id);
+      if (!rm) return out_({ok: false, error: "not_found"});
+      shm.getRange(rm, headers_().indexOf("memo") + 1).setValue(safe_(p.memo.trim()));
+      return out_({ok: true, row: rm, memo: true});
+    }
     var err = check_(p);
     if (err) return out_({ok: false, error: err});
     lock.waitLock(20000); locked = true;
@@ -62,7 +80,7 @@ function doPost(e) {
 function doGet(e) {
   var id = e && e.parameter ? String(e.parameter.id || "") : "";
   var sh = sheet_();
-  if (!id) return out_({ok: true, service: "noto-day-match", rows: Math.max(0, sh.getLastRow() - 1)});
+  if (!id) return out_({ok: true, service: "noto-day-match", version: 3, rows: Math.max(0, sh.getLastRow() - 1)});
   if (!UUID_RE.test(id)) return out_({ok: false, error: "bad_id"});
   var r = findRow_(sh, id);
   if (!r) return out_({ok: true, found: false});
@@ -80,31 +98,42 @@ function setup() {
 }
 
 // ---------- 中身 ----------
+function inList_(list, v) { return list.indexOf(v) >= 0; }
+function allIn_(list, arr) { return Array.isArray(arr) && arr.length <= list.length && arr.every(function (x) { return inList_(list, x); }); }
+
 function check_(p) {
   if (!p || typeof p !== "object") return "not_object";
   if (!UUID_RE.test(String(p.id || ""))) return "bad_id";
-  if (!Array.isArray(p.swipes) || p.swipes.length < 1 || p.swipes.length > 20) return "bad_swipes";
+  if (!Array.isArray(p.ratings) || p.ratings.length < 1 || p.ratings.length > 20) return "bad_ratings";
   var ids = CARDS.map(function (c) { return c.id; });
-  for (var i = 0; i < p.swipes.length; i++) {
-    var s = p.swipes[i];
-    if (!s || ids.indexOf(s.id) < 0 || CHOICES.indexOf(s.v) < 0) return "bad_swipe";
+  for (var i = 0; i < p.ratings.length; i++) {
+    var s = p.ratings[i];
+    if (!s || ids.indexOf(s.id) < 0) return "bad_rating_id";
+    if ([0, 1, 2, 3, 4, 5].indexOf(s.r) < 0) return "bad_rating";
     if (typeof s.ms !== "number" || s.ms < 0 || s.ms > 3600000) return "bad_ms";
   }
+  var pairs = p.pairs || {};
+  for (var k in pairs) { if (["heal", "culture", "food"].indexOf(k) < 0 || ["near", "far"].indexOf(pairs[k]) < 0) return "bad_pair"; }
+  if (p.farReasons && !allIn_(REASONS, p.farReasons)) return "bad_reason";
+  if (p.wordsPlus && !allIn_(WORDS, p.wordsPlus)) return "bad_words";
+  if (p.wordsMinus && !allIn_(WORDS, p.wordsMinus)) return "bad_words";
   if (p.pick && ids.indexOf(p.pick) < 0) return "bad_pick";
   var a = p.about || {};
-  if (a.region && REGIONS.indexOf(a.region) < 0) return "bad_region";
-  if (a.company && COMPANY.indexOf(a.company) < 0) return "bad_company";
-  if (a.maxSpend && SPEND.indexOf(a.maxSpend) < 0) return "bad_spend";
-  if (p.price && PRICE.indexOf(p.price) < 0) return "bad_price";
-  if (p.quake && QUAKE.indexOf(p.quake) < 0) return "bad_quake";
+  if (a.region && !inList_(REGIONS, a.region)) return "bad_region";
+  if (a.company && !inList_(COMPANY, a.company)) return "bad_company";
+  if (a.maxSpend && !inList_(SPEND, a.maxSpend)) return "bad_spend";
+  if (p.price && !inList_(PRICE, p.price)) return "bad_price";
+  if (p.quake && !inList_(QUAKE, p.quake)) return "bad_quake";
   if (p.type && !TYPES[p.type]) return "bad_type";
   if (p.why && String(p.why).length > 300) return "bad_why";
   return "";
 }
 
+function bar_(arr) { return arr && arr.length ? "|" + arr.join("|") + "|" : ""; }
+
 function toRow_(p) {
   var by = {};
-  (p.swipes || []).forEach(function (s, i) { by[s.id] = {v: s.v, ms: s.ms, pos: s.pos || ((p.order || []).indexOf(s.id) + 1) || (i + 1)}; });
+  (p.ratings || []).forEach(function (s, i) { by[s.id] = {r: s.r, ms: s.ms, pos: s.pos || ((p.order || []).indexOf(s.id) + 1) || (i + 1)}; });
   var pick = CARDS.filter(function (c) { return c.id === p.pick; })[0];
   var a = p.about || {};
   var row = [
@@ -115,16 +144,12 @@ function toRow_(p) {
   ];
   CARDS.forEach(function (c) {
     var s = by[c.id];
-    row.push(s ? s.v : "", s ? sec_(s.ms) : "", s ? s.pos : "");
+    row.push(s ? (s.r === 0 ? "?" : s.r) : "", s ? sec_(s.ms) : "", s ? s.pos : "");
   });
-  var plus = [], minus = [];
-  Object.keys(p.words || {}).forEach(function (w) {
-    if (WORDS.indexOf(w) < 0) return;
-    if (p.words[w] === 1) plus.push(w); else if (p.words[w] === -1) minus.push(w);
-  });
-  row.push(plus.length ? "|" + plus.join("|") + "|" : "", minus.length ? "|" + minus.join("|") + "|" : "");
+  PAIRS.forEach(function (pp) { row.push((p.pairs || {})[pp.theme] || ""); });
+  row.push(bar_(p.farReasons), bar_(p.wordsPlus), bar_(p.wordsMinus));
   STEPS.forEach(function (s) { row.push(p.steps && typeof p.steps[s] === "number" ? sec_(p.steps[s]) : ""); });
-  row.push(safe_(JSON.stringify(p)));
+  row.push("", safe_(JSON.stringify(p)));
   return row;
 }
 
@@ -148,8 +173,19 @@ function ss_() {
 function sheet_() {
   var ss = ss_();
   if (ss.getSpreadsheetTimeZone() !== "Asia/Tokyo") ss.setSpreadsheetTimeZone("Asia/Tokyo"); // 新規シートは米国時間で作られるため
-  var sh = ss.getSheetByName("responses");
   var h = headers_();
+  var sh = ss.getSheetByName("responses");
+  if (sh) {
+    var cur = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0];
+    if (cur.join("\t") !== h.join("\t")) {
+      // 列の並びが変わった＝古いシートは名前を変えて残し、作り直す
+      var tag = Utilities.formatDate(new Date(), "Asia/Tokyo", "MMdd_HHmm");
+      sh.setName("responses_old_" + tag);
+      var oldSum = ss.getSheetByName("集計");
+      if (oldSum) oldSum.setName("集計_old_" + tag);
+      sh = null;
+    }
+  }
   if (!sh) {
     sh = ss.insertSheet("responses", 0);
     sh.getRange(1, 1, 1, h.length).setValues([h]).setFontWeight("bold");
@@ -180,65 +216,73 @@ function buildSummary_(ss, h) {
   var sm = ss.insertSheet("集計", 1);
   function R(name) { var c = col_(h.indexOf(name) + 1); return "responses!$" + c + "$2:$" + c; }
   var T = R("test"), ID = R("id");
+  var W = 12;
+  function pad(row) { while (row.length < W) row.push(""); return row; }
   var rows = [];
-  rows.push(["集計（リンク末尾に #test を付けた回答は除く）", "", "", "", "", "", "", "", "", "", ""]);
-  rows.push(["回答数", '=COUNTIFS(' + ID + ',"<>",' + T + ',"<>test")', "", "", "", "", "", "", "", "", ""]);
-  rows.push(["", "", "", "", "", "", "", "", "", "", ""]);
-  rows.push(["カード", "中身", "距離", "答えた人", "Love it", "Like", "No", "Not sure", "Love＋Like", "迷った秒（中央値）", "「1日だけ」に選んだ人"]);
+  rows.push(pad(["集計（リンク末尾に #test を付けた回答は除く）"]));
+  rows.push(pad(["回答数", '=COUNTIFS(' + ID + ',"<>",' + T + ',"<>test")']));
+  rows.push(pad([]));
+  rows.push(pad(["カード", "中身", "距離", "答えた人", "平均（5点満点）", "予約する（4〜5）", "迷う（3）", "予約しない（1〜2）", "分からない（?）", "迷った秒（中央値）", "「1日だけ」に選んだ人", "表示順の平均"]));
   var cardRow = {};
   CARDS.forEach(function (c, i) {
     var r = 5 + i; cardRow[c.id] = r;
-    var C = R(c.id), S = R(c.id + "_sec"), P = R("pick");
+    var C = R(c.id), S = R(c.id + "_sec"), P = R("pick"), O = R(c.id + "_pos");
     rows.push([
       c.k + " " + c.title, c.theme, c.dist,
       '=COUNTIFS(' + C + ',"<>",' + T + ',"<>test")',
-      '=IFERROR(COUNTIFS(' + C + ',"love",' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(COUNTIFS(' + C + ',"like",' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(COUNTIFS(' + C + ',"no",' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(COUNTIFS(' + C + ',"unsure",' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(E' + r + '+F' + r + ',"")',
+      '=IFERROR(AVERAGEIFS(' + C + ',' + T + ',"<>test"),"")',
+      '=IFERROR(COUNTIFS(' + C + ',">=4",' + T + ',"<>test")/$D' + r + ',"")',
+      '=IFERROR(COUNTIFS(' + C + ',3,' + T + ',"<>test")/$D' + r + ',"")',
+      '=IFERROR(COUNTIFS(' + C + ',"<=2",' + C + ',">=1",' + T + ',"<>test")/$D' + r + ',"")',
+      '=IFERROR(COUNTIFS(' + C + ',"~?",' + T + ',"<>test")/$D' + r + ',"")',
       '=IFERROR(MEDIAN(FILTER(' + S + ',' + S + '<>"",' + T + '<>"test")),"")',
-      '=COUNTIFS(' + P + ',"' + c.id + '",' + T + ',"<>test")'
+      '=COUNTIFS(' + P + ',"' + c.id + '",' + T + ',"<>test")',
+      '=IFERROR(AVERAGEIFS(' + O + ',' + T + ',"<>test"),"")'
     ]);
   });
-  sm.getRange(1, 1, rows.length, 11).setValues(rows);
-  sm.getRange(5, 5, CARDS.length, 5).setNumberFormat("0%");
+  sm.getRange(1, 1, rows.length, W).setValues(rows);
+  sm.getRange(5, 5, CARDS.length, 1).setNumberFormat("0.0");
+  sm.getRange(5, 6, CARDS.length, 4).setNumberFormat("0%");
   sm.getRange(5, 10, CARDS.length, 1).setNumberFormat("0.0");
+  sm.getRange(5, 12, CARDS.length, 1).setNumberFormat("0.0");
 
   var r0 = 5 + CARDS.length + 1;
-  var pairs = [["癒し", "heal-near", "heal-far"], ["カルチャー", "culture-near", "culture-far"], ["食（寿司）", "food-near", "food-far"]];
-  var block = [["近い版と遠い版（Love＋Like）", "近い", "遠い", "差（遠い−近い）"]];
-  pairs.forEach(function (p, i) {
-    var rr = r0 + 1 + i;
-    block.push([p[0], "=I" + cardRow[p[1]], "=I" + cardRow[p[2]], '=IFERROR(C' + rr + '-B' + rr + ',"")']);
+  var block = [["近い版と遠い版", "予約する（近い）", "予約する（遠い）", "差（遠い−近い）", "二択で遠い版を選んだ割合", "二択に答えた人"]];
+  PAIRS.forEach(function (p, i) {
+    var rr = r0 + 1 + i, PC = R("pair_" + p.theme);
+    block.push([p.ja, "=F" + cardRow[p.near], "=F" + cardRow[p.far], '=IFERROR(C' + rr + '-B' + rr + ',"")',
+      '=IFERROR(COUNTIFS(' + PC + ',"far",' + T + ',"<>test")/F' + rr + ',"")',
+      '=COUNTIFS(' + PC + ',"<>",' + T + ',"<>test")']);
   });
-  sm.getRange(r0, 1, block.length, 4).setValues(block);
-  sm.getRange(r0 + 1, 2, pairs.length, 3).setNumberFormat("0%");
+  sm.getRange(r0, 1, block.length, 6).setValues(block);
+  sm.getRange(r0 + 1, 2, PAIRS.length, 4).setNumberFormat("0%");
+  sm.getRange(r0, 1, 1, 6).setFontWeight("bold");
 
   var r = r0 + block.length + 1;
-  function counts(title, colName, list, contains) {
+  function counts(title, colName, items, contains) {
     var b = [[title, "人数", "割合"]];
-    list.forEach(function (v, i) {
-      var crit = contains ? '"*|' + v.replace(/"/g, '""') + '|*"' : '"' + v.replace(/"/g, '""') + '"';
-      b.push([v, '=COUNTIFS(' + R(colName) + ',' + crit + ',' + T + ',"<>test")', '=IFERROR(B' + (r + 1 + i) + '/$B$2,"")']);
+    items.forEach(function (it, i) {
+      var label = Array.isArray(it) ? it[0] : it, v = Array.isArray(it) ? it[1] : it;
+      var q = String(v).replace(/"/g, '""').replace(/[~*?]/g, "~$&");
+      var crit = contains ? '"*|' + q + '|*"' : '"' + q + '"';
+      b.push([label, '=COUNTIFS(' + R(colName) + ',' + crit + ',' + T + ',"<>test")', '=IFERROR(B' + (r + 1 + i) + '/$B$2,"")']);
     });
     sm.getRange(r, 1, b.length, 3).setValues(b);
-    sm.getRange(r + 1, 3, list.length, 1).setNumberFormat("0%");
+    sm.getRange(r + 1, 3, items.length, 1).setNumberFormat("0%");
     sm.getRange(r, 1, 1, 3).setFontWeight("bold");
     r += b.length + 1;
   }
+  counts("遠い版で引っかかった理由（遠い版に3以下を付けた人）", "far_reasons", REASONS, true);
   counts("「いくらに見える？」（選んだ1日）", "price", PRICE, false);
   counts("地震のあとの心配", "quake", QUAKE, false);
-  counts("旅のタイプ", "type", Object.keys(TYPES), false);
+  counts("旅のタイプ（「1日だけ」の中身）", "type", Object.keys(TYPES).map(function (k) { return [TYPE_JA[k] + "（" + TYPES[k] + "）", k]; }), false);
   counts("どこから", "region", REGIONS, false);
   counts("誰と旅する", "company", COMPANY, false);
   counts("1日の体験に払った最高額", "max_spend", SPEND, false);
-  counts("言葉：○（惹かれる）", "words_plus", WORDS, true);
-  counts("言葉：×（引っかかる）", "words_minus", WORDS, true);
+  counts("言葉：惹かれる", "words_plus", WORDS, true);
+  counts("言葉：引っかかる", "words_minus", WORDS, true);
 
   sm.getRange(1, 1).setFontWeight("bold");
-  sm.getRange(4, 1, 1, 11).setFontWeight("bold");
-  sm.getRange(r0, 1, 1, 4).setFontWeight("bold");
-  sm.setColumnWidth(1, 300);
-  sm.setFrozenRows(0);
+  sm.getRange(4, 1, 1, W).setFontWeight("bold");
+  sm.setColumnWidth(1, 320);
 }
