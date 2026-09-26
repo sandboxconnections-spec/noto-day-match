@@ -86,6 +86,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-vi
 .card-photo img{display:block;width:100%;height:100%;object-fit:cover}
 .card-photo .drive{position:absolute;right:10px;bottom:10px;background:rgba(17,20,22,.72);color:#fff;border-radius:10px;padding:6px 10px}
 .card-photo .drive .drive-a,.card-photo .drive .drive-l{color:#E3E8E6}
+.card-photo .kchip{position:absolute;left:10px;top:10px;background:rgba(17,20,22,.72);color:#fff;border-radius:8px;padding:4px 8px;font-family:var(--display);font-weight:800;font-size:22px;line-height:1}
+.card-photo .credit{position:absolute;left:10px;bottom:8px;max-width:55%;font-size:10px;line-height:1.3;color:#fff;background:rgba(17,20,22,.55);border-radius:4px;padding:2px 5px;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kanji{font-family:var(--display);font-weight:800;font-size:60px;line-height:1}
 .drive{display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:1px}
 .drive-a{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
@@ -271,24 +273,37 @@ details.org[open] summary{margin-bottom:10px}
   // Where answers go: the Google Apps Script web app that writes one row per person into the Google Sheet.
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbzHTqDPSPYme8u4VaA-Rhgxga4aithHh5zLy3XVImxCZj3mwoVZnugkNUpZGCyqpoab9g/exec";
 
-  // photo: path to an image in this repo (e.g. "img/heal-near.jpg"). Photos show only when all eight cards have one.
+  // photo: image path or URL. Photos show only when all eight cards have one.
+  // credit: shown on the photo for Creative Commons images (author / license, linked to the file page).
+  var WM = "https://upload.wikimedia.org/wikipedia/commons/thumb/";
+  var CM = "https://commons.wikimedia.org/wiki/File:";
   var CARDS = [
-    {id:"heal-near", theme:"heal", dist:"near", k:"静", photo:"", title:"A Quiet Day by Nanao Bay",
+    {id:"heal-near", theme:"heal", dist:"near", k:"静", photo:"img/heal-near.jpg", title:"A Quiet Day by Nanao Bay",
      stops:["Zazen meditation at a local Zen temple","Lunch in Nanao","Tea in a host's tatami room","Five silent minutes by the sea"]},
-    {id:"heal-far", theme:"heal", dist:"far", k:"禅", photo:"", title:"Zen at Sojiji Soin",
+    {id:"heal-far", theme:"heal", dist:"far", k:"禅", title:"Zen at Sojiji Soin",
+     photo:WM + "5/57/%E7%B8%BD%E6%8C%81%E5%AF%BA%E7%A5%96%E9%99%A2%E5%B1%B1%E9%96%80.jpg/1280px-%E7%B8%BD%E6%8C%81%E5%AF%BA%E7%A5%96%E9%99%A2%E5%B1%B1%E9%96%80.jpg",
+     credit:{text:"Mikkabie / CC BY-SA 4.0", url:CM + "%E7%B8%BD%E6%8C%81%E5%AF%BA%E7%A5%96%E9%99%A2%E5%B1%B1%E9%96%80.jpg"},
      stops:["Zazen at Sojiji Soin, a Zen temple founded in 1321","Lunch in a small port town","Tea in a host's tatami room","An evening by candlelight"]},
-    {id:"culture-near", theme:"culture", dist:"near", k:"漆", photo:"", title:"Makers of Ipponsugi Street",
+    {id:"culture-near", theme:"culture", dist:"near", k:"漆", title:"Makers of Ipponsugi Street",
+     photo:WM + "6/6f/Wajima-nuri_chopsticks_ac_%282%29.jpg/1280px-Wajima-nuri_chopsticks_ac_%282%29.jpg",
+     credit:{text:"Asturio Cantabrio / CC BY-SA 4.0", url:CM + "Wajima-nuri_chopsticks_ac_(2).jpg"},
      stops:["Carve gold into lacquer (chinkin) with a local master","A 100-year-old soy sauce brewery","A traditional Japanese candle maker","An evening by candlelight on a 600-year-old street"]},
-    {id:"culture-far", theme:"culture", dist:"far", k:"匠", photo:"", title:"Lacquer Masters of Wajima",
+    {id:"culture-far", theme:"culture", dist:"far", k:"匠", title:"Lacquer Masters of Wajima",
+     photo:WM + "b/b9/Wajima-nuri_red_rice_bowl.jpg/1280px-Wajima-nuri_red_rice_bowl.jpg",
+     credit:{text:"yuuki / CC BY-SA 4.0", url:CM + "Wajima-nuri_red_rice_bowl.jpg"},
      stops:["Sojiji Soin, a Zen temple founded in 1321","Lunch on the coast","The workshop of a Wajima-nuri lacquer artisan","Tea in a host's tatami room"]},
-    {id:"active-near", theme:"active", dist:"near", k:"海", photo:"", title:"Paddle and Walk Noto Island",
+    {id:"active-near", theme:"active", dist:"near", k:"海", title:"Paddle and Walk Noto Island",
+     photo:WM + "e/e4/Notojima_Bridge_-_Nanao%2C_Ishikawa%2C_Japan_-_DSC00755.jpg/1280px-Notojima_Bridge_-_Nanao%2C_Ishikawa%2C_Japan_-_DSC00755.jpg",
+     credit:{text:"Daderot / CC0", url:CM + "Notojima_Bridge_-_Nanao,_Ishikawa,_Japan_-_DSC00755.jpg"},
      stops:["Private stand-up paddleboarding on Nanao Bay","Lunch on Noto Island","Walk across the 1 km Notojima Bridge","An evening by candlelight"]},
-    {id:"local-near", theme:"local", dist:"near", k:"縁", photo:"", title:"Stories of Ipponsugi",
+    {id:"local-near", theme:"local", dist:"near", k:"縁", photo:"img/local-near.jpg", title:"Stories of Ipponsugi",
      stops:["Tea at a local host's home","Walk a 600-year-old merchant street with its shopkeepers","Hear how they are rebuilding after the 2024 earthquake","Dinner at a neighborhood restaurant"]},
-    {id:"food-near", theme:"food", dist:"near", k:"鮨", photo:"", title:"Sushi, Three Ways",
+    {id:"food-near", theme:"food", dist:"near", k:"鮨", title:"Sushi, Three Ways",
+     photo:WM + "e/e8/Tuna_nigiri_sushi_-_Sushiko_%282648979899%29.jpg/1280px-Tuna_nigiri_sushi_-_Sushiko_%282648979899%29.jpg",
+     credit:{text:"Alpha from Melbourne / CC BY-SA 2.0", url:CM + "Tuna_nigiri_sushi_-_Sushiko_(2648979899).jpg"},
      stops:["Carve your own lacquer chopsticks","Lunch at a local sushi counter","Make nigiri with a chef in a private session","Dinner at a master's counter the locals love"],
      extra:"Also: a 100-year-old soy sauce brewery and this year's new rice"},
-    {id:"food-far", theme:"food", dist:"far", k:"酒", photo:"", title:"Sake and Sushi of Oku-Noto",
+    {id:"food-far", theme:"food", dist:"far", k:"酒", photo:"img/food-far.jpg", title:"Sake and Sushi of Oku-Noto",
      stops:["A sake brewery in brewing season","Sushi lunch in a fishing port","Walk the port town","Dinner at a master's counter the locals love"]}
   ];
   var BY = {}; CARDS.forEach(function(c){ BY[c.id] = c; });
@@ -440,8 +455,9 @@ details.org[open] summary{margin-bottom:10px}
     a.className = "card enter"; a.setAttribute("aria-label", c.title);
     var stops = c.stops.map(function(s){ return "<li>" + esc(s) + "</li>"; }).join("");
     var drive = '<div class="drive"><span class="drive-a">About</span><span class="drive-n">' + hrs(c) + '</span><span class="drive-l">in the car, all day</span></div>';
+    var credit = c.credit ? '<a class="credit" href="' + esc(c.credit.url) + '" target="_blank" rel="noopener">Photo: ' + esc(c.credit.text) + '</a>' : '';
     var hero = USE_PHOTOS
-      ? '<div class="card-photo"><img src="' + esc(c.photo) + '" alt="">' + drive + '</div>'
+      ? '<div class="card-photo"><img src="' + esc(c.photo) + '" alt=""><span class="kchip" aria-hidden="true">' + c.k + '</span>' + drive + credit + '</div>'
       : '<div class="card-hero"><span class="kanji" aria-hidden="true">' + c.k + '</span>' + drive + '</div>';
     a.innerHTML = hero +
       '<div class="card-body"><h3 class="card-title">' + esc(c.title) + '</h3><ol class="stops">' + stops + '</ol>' +
@@ -453,6 +469,8 @@ details.org[open] summary{margin-bottom:10px}
     var stage = $("stage"); stage.innerHTML = "";
     var c = BY[S.order[S.idx]];
     topCard = cardEl(c); stage.appendChild(topCard); busy = false;
+    var nx = BY[S.order[S.idx + 1]];
+    if (USE_PHOTOS && nx) { var pre = new Image(); pre.src = nx.photo; }
     S.shownAt = performance.now();
     $("count").textContent = (S.idx + 1) + " of " + S.order.length;
     $("bar").style.width = (S.idx / S.order.length * 100) + "%";
