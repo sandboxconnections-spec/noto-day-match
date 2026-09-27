@@ -935,13 +935,13 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
   function whenKey(hm){ var m = toMin(hm); return m < 690 ? "when_morning" : (m < 840 ? "when_midday" : (m < 1050 ? "when_afternoon" : "when_evening")); }
   function spotTitle(c, sp){ var i = (SPOTS[c] || []).indexOf(sp), f = FLY[c]; return i < 0 ? "" : (f[LANG] || f.en).steps[i][1]; }
   function heartsOf(id){ return Object.keys(S.hearts).filter(function(k){ return k.indexOf(id + ":") === 0; }).map(function(k){ return S.hearts[k]; }); }
-  // Match score (for fun, from the person's own answers): rating 1..5 -> 30..90, "not sure" 35; +4 per heart (up to 2); +5 for the one pick; +2 when the distance fits.
+  // Match score (for fun, from the person's own answers): rating 1..5 -> 30..86, "not sure" 35; +4 per heart (up to 2); +5 for the one pick; +2 when the distance fits. Only the pick can reach 99.
   function computeMatches(road){
     var pref = road ? "far" : "near";
     var list = S.ratings.map(function(s){
-      var hs = heartsOf(s.id), base = s.r === 0 ? 35 : 30 + (s.r - 1) * 15;
+      var hs = heartsOf(s.id), base = s.r === 0 ? 35 : 30 + (s.r - 1) * 14;
       var score = base + Math.min(hs.length, 2) * 4 + (S.pick === s.id ? 5 : 0) + (BY[s.id].dist === pref ? 2 : 0);
-      return {id:s.id, r:s.r, hearts:hs, score:Math.min(99, score)};
+      return {id:s.id, r:s.r, hearts:hs, score:Math.min(S.pick === s.id ? 99 : 96, score)};
     });
     list.sort(function(a, b){ return b.score - a.score || b.r - a.r || b.hearts.length - a.hearts.length; });
     return list.slice(0, 3);
