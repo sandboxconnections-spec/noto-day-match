@@ -142,108 +142,118 @@ details.org summary{cursor:pointer;font-size:13px;color:var(--ink-2)}
 details.org[open] summary{margin-bottom:10px}
 .org-row{display:flex;flex-direction:column;gap:8px}
 @media (prefers-reduced-motion: reduce){.card.fly,.progress i{transition:none}.card.enter{animation:none}}
+.start-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface);flex:none}
+.lang button{appearance:none;border:0;background:none;color:var(--ink-2);font:inherit;font-size:12px;font-weight:700;padding:6px 12px;cursor:pointer;min-height:32px}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 </style>
 </head>
 <body>
 <div class="app">
 
   <section class="screen" id="s-start">
-    <p class="eyebrow">Noto Peninsula, Japan</p>
-    <h1 class="h-display">Which Noto day is yours?</h1>
+    <div class="start-top">
+      <p class="eyebrow" data-t="eyebrow_start">Noto Peninsula, Japan</p>
+      <div class="lang" role="group" aria-label="Language / 言語">
+        <button type="button" data-lang="en" aria-pressed="true">English</button>
+        <button type="button" data-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+      </div>
+    </div>
+    <h1 class="h-display" data-t="h_start">Which Noto day is yours?</h1>
     <div class="deck" aria-hidden="true"><span>静</span><span>禅</span><span>漆</span><span>匠</span><span>海</span><span>縁</span><span>鮨</span><span>酒</span></div>
-    <p class="lead">Eight ideas for a private day in Noto. Tell us which ones you'd book, then see your travel type.</p>
-    <ul class="facts"><li>About 4 minutes</li><li>Anonymous</li><li>No sign-up</li></ul>
-    <p class="note">These are early ideas, and some aren't bookable yet. Your answers help us decide what to build.</p>
+    <p class="lead" data-t="lead_start"></p>
+    <ul class="facts"><li data-t="f1"></li><li data-t="f2"></li><li data-t="f3"></li></ul>
+    <p class="note" data-t="note_start"></p>
     <p class="note" id="mode-note" hidden></p>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-start" type="button">Start</button>
+    <button class="btn primary" id="b-start" type="button" data-t="start">Start</button>
   </section>
 
   <section class="screen" id="s-about" hidden>
-    <p class="eyebrow">About you</p>
-    <h2 class="h2">A little about you</h2>
-    <div class="q"><p class="q-label">Where are you from?</p><div class="chips" id="q-region"></div></div>
-    <div class="q"><p class="q-label">Who do you usually travel with?</p><div class="chips" id="q-company"></div></div>
-    <div class="q"><p class="q-label">The most you've paid for one day's experience while traveling?</p><div class="chips" id="q-spend"></div></div>
+    <p class="eyebrow" data-t="eyebrow_about"></p>
+    <h2 class="h2" data-t="h_about"></h2>
+    <div class="q"><p class="q-label" data-t="q_region"></p><div class="chips" id="q-region"></div></div>
+    <div class="q"><p class="q-label" data-t="q_company"></p><div class="chips" id="q-company"></div></div>
+    <div class="q"><p class="q-label" data-t="q_spend"></p><div class="chips" id="q-spend"></div></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-about-next" type="button" disabled>Next</button>
+    <button class="btn primary" id="b-about-next" type="button" disabled data-t="next"></button>
   </section>
 
   <section class="screen" id="s-cards" hidden>
-    <div class="top"><div class="progress"><i id="bar"></i></div><span class="count" id="count">1 of 8</span></div>
+    <div class="top"><div class="progress"><i id="bar"></i></div><span class="count" id="count"></span></div>
     <div class="stage" id="stage"></div>
-    <p class="ask" id="ask">Would you book this day?</p>
+    <p class="ask" id="ask" data-t="ask"></p>
     <div class="scale" id="scale">
-      <button class="rate" type="button" data-r="1" style="--c:var(--slate)"><span class="dot"></span>Definitely<br>not</button>
-      <button class="rate" type="button" data-r="2" style="--c:color-mix(in srgb,var(--slate) 55%,var(--line))"><span class="dot"></span>Probably<br>not</button>
-      <button class="rate" type="button" data-r="3" style="--c:var(--line)"><span class="dot"></span>Maybe</button>
-      <button class="rate" type="button" data-r="4" style="--c:color-mix(in srgb,var(--urushi) 55%,var(--line))"><span class="dot"></span>Probably</button>
-      <button class="rate" type="button" data-r="5" style="--c:var(--urushi)"><span class="dot"></span>Definitely</button>
+      <button class="rate" type="button" data-r="1" style="--c:var(--slate)"><span class="dot"></span><span data-th="r1"></span></button>
+      <button class="rate" type="button" data-r="2" style="--c:color-mix(in srgb,var(--slate) 55%,var(--line))"><span class="dot"></span><span data-th="r2"></span></button>
+      <button class="rate" type="button" data-r="3" style="--c:var(--line)"><span class="dot"></span><span data-th="r3"></span></button>
+      <button class="rate" type="button" data-r="4" style="--c:color-mix(in srgb,var(--urushi) 55%,var(--line))"><span class="dot"></span><span data-th="r4"></span></button>
+      <button class="rate" type="button" data-r="5" style="--c:var(--urushi)"><span class="dot"></span><span data-th="r5"></span></button>
     </div>
-    <button class="linkbtn" id="b-unsure" type="button">I don't get what this day is</button>
+    <button class="linkbtn" id="b-unsure" type="button" data-t="unsure"></button>
   </section>
 
   <section class="screen" id="s-pairs" hidden>
-    <p class="eyebrow">Near or far</p>
-    <h2 class="h2">Same kind of day, two versions. Which one would you book?</h2>
+    <p class="eyebrow" data-t="eyebrow_pairs"></p>
+    <h2 class="h2" data-t="h_pairs"></h2>
     <div class="pairs" id="pairs"></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-pairs-next" type="button" disabled>Next</button>
+    <button class="btn primary" id="b-pairs-next" type="button" disabled data-t="next"></button>
   </section>
 
   <section class="screen" id="s-reason" hidden>
-    <h2 class="h2">What held you back on the longer days?</h2>
-    <p class="sub">Tap any that apply.</p>
+    <h2 class="h2" data-t="h_reason"></h2>
+    <p class="sub" data-t="sub_reason"></p>
     <div class="chips" id="q-reason"></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-reason-next" type="button">Next</button>
+    <button class="btn primary" id="b-reason-next" type="button" data-t="next"></button>
   </section>
 
   <section class="screen" id="s-pick" hidden>
-    <h2 class="h2">If you could do only one of these days, which one?</h2>
-    <p class="sub">Pick the one you would actually book.</p>
+    <h2 class="h2" data-t="h_pick"></h2>
+    <p class="sub" data-t="sub_pick"></p>
     <div class="picklist" id="picklist"></div>
-    <label class="fl" for="why">Why this one? (optional)
-      <input type="text" id="why" maxlength="200" autocomplete="off" placeholder="One line is plenty">
+    <label class="fl" for="why"><span data-t="why_label"></span>
+      <input type="text" id="why" maxlength="200" autocomplete="off" data-tp="why_ph">
     </label>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-pick-next" type="button" disabled>Next</button>
+    <button class="btn primary" id="b-pick-next" type="button" disabled data-t="next"></button>
   </section>
 
   <section class="screen" id="s-price" hidden>
-    <h2 class="h2">What would you expect this day to cost, per person?</h2>
+    <h2 class="h2" data-t="h_price"></h2>
     <div class="picked" id="price-card"></div>
-    <p class="sub">Private day for your group, with an English-speaking guide, a car, all activities and meals.</p>
+    <p class="sub" data-t="sub_price"></p>
     <div class="chips" id="q-price"></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-price-next" type="button" disabled>Next</button>
+    <button class="btn primary" id="b-price-next" type="button" disabled data-t="next"></button>
   </section>
 
   <section class="screen" id="s-wplus" hidden>
-    <h2 class="h2">Which words draw you in?</h2>
-    <p class="sub">Tap any that make you want to go. Tap again to undo.</p>
+    <h2 class="h2" data-t="h_wplus"></h2>
+    <p class="sub" data-t="sub_wplus"></p>
     <div class="chips" id="q-wplus"></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-wplus-next" type="button">Next</button>
+    <button class="btn primary" id="b-wplus-next" type="button" data-t="next"></button>
   </section>
 
   <section class="screen" id="s-wminus" hidden>
-    <h2 class="h2">Any words that put you off?</h2>
-    <p class="sub">Tap any that make you less interested. Skip if none.</p>
+    <h2 class="h2" data-t="h_wminus"></h2>
+    <p class="sub" data-t="sub_wminus"></p>
     <div class="chips" id="q-wminus"></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-wminus-next" type="button">Next</button>
+    <button class="btn primary" id="b-wminus-next" type="button" data-t="next"></button>
   </section>
 
   <section class="screen" id="s-quake" hidden>
-    <h2 class="h2">Before today, did you have any concerns about visiting Noto after the 2024 earthquake?</h2>
+    <h2 class="h2" data-t="h_quake"></h2>
     <div class="chips" id="q-quake"></div>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-quake-next" type="button" disabled>See my travel type</button>
+    <button class="btn primary" id="b-quake-next" type="button" disabled data-t="see_type"></button>
   </section>
 
   <section class="screen" id="s-result" hidden>
-    <p class="eyebrow">Your Noto travel type</p>
+    <p class="eyebrow" data-t="eyebrow_result"></p>
     <p class="result-kanji" id="r-kanji" aria-hidden="true"></p>
     <h1 class="h-display" id="r-type"></h1>
     <p class="lead" id="r-desc"></p>
@@ -251,17 +261,17 @@ details.org[open] summary{margin-bottom:10px}
     <div class="picked" id="r-pick"></div>
     <p class="save" id="r-save" role="status"></p>
     <details class="org" id="org">
-      <summary>For the organizer: add a note</summary>
+      <summary data-t="org_summary"></summary>
       <div class="org-row">
-        <label class="fl" for="memo">What they said
-          <textarea id="memo" maxlength="500" placeholder="e.g. Chose Zen because they want quiet. Said 3 hours is fine with a good guide."></textarea>
+        <label class="fl" for="memo"><span data-t="memo_label"></span>
+          <textarea id="memo" maxlength="500" data-tp="memo_ph"></textarea>
         </label>
-        <button class="btn small" id="b-memo" type="button">Save note</button>
+        <button class="btn small" id="b-memo" type="button" data-t="memo_save"></button>
         <p class="note" id="memo-status" role="status"></p>
       </div>
     </details>
     <div class="spacer"></div>
-    <button class="btn primary" id="b-again" type="button">Next person</button>
+    <button class="btn primary" id="b-again" type="button" data-t="again"></button>
   </section>
 
 </div>
@@ -273,72 +283,160 @@ details.org[open] summary{margin-bottom:10px}
   // Where answers go: the Google Apps Script web app that writes one row per person into the Google Sheet.
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbzHTqDPSPYme8u4VaA-Rhgxga4aithHh5zLy3XVImxCZj3mwoVZnugkNUpZGCyqpoab9g/exec";
 
+  // ---------- words on the screen (English / 日本語) ----------
+  var T = {
+    en: {
+      eyebrow_start:"Noto Peninsula, Japan", h_start:"Which Noto day is yours?",
+      lead_start:"Eight ideas for a private day in Noto. Tell us which ones you'd book, then see your travel type.",
+      f1:"About 4 minutes", f2:"Anonymous", f3:"No sign-up",
+      note_start:"These are early ideas, and some aren't bookable yet. Your answers help us decide what to build.",
+      start:"Start", next:"Next",
+      eyebrow_about:"About you", h_about:"A little about you",
+      q_region:"Where are you from?", q_company:"Who do you usually travel with?", q_spend:"The most you've paid for one day's experience while traveling?",
+      ask:"Would you book this day?",
+      r1:"Definitely<br>not", r2:"Probably<br>not", r3:"Maybe", r4:"Probably", r5:"Definitely",
+      unsure:"I don't get what this day is",
+      eyebrow_pairs:"Near or far", h_pairs:"Same kind of day, two versions. Which one would you book?",
+      pair_heal:"A quiet day", pair_culture:"Craft and culture", pair_food:"Sushi",
+      h_reason:"What held you back on the longer days?", sub_reason:"Tap any that apply.",
+      h_pick:"If you could do only one of these days, which one?", sub_pick:"Pick the one you would actually book.",
+      why_label:"Why this one? (optional)", why_ph:"One line is plenty",
+      h_price:"What would you expect this day to cost, per person?",
+      sub_price:"Private day for your group, with an English-speaking guide, a car, all activities and meals.",
+      h_wplus:"Which words draw you in?", sub_wplus:"Tap any that make you want to go. Tap again to undo.",
+      h_wminus:"Any words that put you off?", sub_wminus:"Tap any that make you less interested. Skip if none.",
+      wplus_taken:"You chose this as a word that draws you in",
+      h_quake:"Before today, did you have any concerns about visiting Noto after the 2024 earthquake?",
+      see_type:"See my travel type",
+      eyebrow_result:"Your Noto travel type", your_day:"Your one day",
+      road_yes:"Road tripper: a long drive is fine when the day is worth it.",
+      road_no:"Stay close: you would rather spend the day there than on the road.",
+      saving:"Saving…", saved:"Saved. Thank you!",
+      queued:"Saved on this phone. It will upload the next time this page opens online.",
+      preview:"Preview mode: this answer was not saved.", failed:"This answer couldn't be saved. Please tell the organizer.",
+      org_summary:"For the organizer: add a note", memo_label:"What they said",
+      memo_ph:"e.g. Chose Zen because they want quiet. Said 3 hours is fine with a good guide.", memo_save:"Save note",
+      memo_empty:"Write a note first.", memo_ok:"Note saved.",
+      memo_ng:"Couldn't save the note. The answer itself may still be uploading; try again in a moment.",
+      again:"Next person",
+      mode_preview:"Preview mode: answers are not saved yet.", mode_test:"Test mode: answers are saved but left out of the summary.",
+      count:"{i} of {n}", drive_a:"About", drive_l:"in the car, all day", hrs_near:"1 hr", hrs_far:"3 hrs",
+      carline:"About {h} in the car, all day", base:"Starts and ends in Nanao",
+      tag4:"Probably", tag5:"Definitely"
+    },
+    ja: {
+      eyebrow_start:"能登半島", h_start:"あなたに合う能登の一日は？",
+      lead_start:"能登で過ごす貸切の一日を8つ用意しました。予約したいかどうかを選ぶと、あなたの旅のタイプが分かります。",
+      f1:"約4分", f2:"匿名", f3:"登録不要",
+      note_start:"まだ案の段階で、予約できないものもあります。回答は、どの案をつくるかを決めるのに使います。",
+      start:"はじめる", next:"次へ",
+      eyebrow_about:"あなたについて", h_about:"あなたについて少しだけ",
+      q_region:"どこから来ましたか？", q_company:"ふだん誰と旅行しますか？", q_spend:"旅先の1日の体験に払った、いちばん高い金額は？",
+      ask:"この一日を予約したいですか？",
+      r1:"絶対<br>しない", r2:"たぶん<br>しない", r3:"どちら<br>とも", r4:"たぶん<br>する", r5:"ぜひ<br>したい",
+      unsure:"どんな一日か分からない",
+      eyebrow_pairs:"近いか、遠いか", h_pairs:"同じ種類の一日を2通り用意しました。予約するならどちら？",
+      pair_heal:"静かな一日", pair_culture:"ものづくりと文化", pair_food:"寿司",
+      h_reason:"遠い方の一日で、気になったことは？", sub_reason:"当てはまるものをすべて選んでください。",
+      h_pick:"ひとつだけ行けるなら、どの一日にしますか？", sub_pick:"実際に予約するものを選んでください。",
+      why_label:"選んだ理由（任意）", why_ph:"一言で大丈夫です",
+      h_price:"この一日、1人いくらくらいだと思いますか？",
+      sub_price:"グループの貸切で、ガイド・車・体験と食事をすべて含みます。",
+      h_wplus:"惹かれる言葉は？", sub_wplus:"行きたくなる言葉を選んでください。もう一度押すと外れます。",
+      h_wminus:"行く気が下がる言葉は？", sub_wminus:"あれば選んでください。なければそのまま次へ。",
+      wplus_taken:"惹かれる言葉として選んだものです",
+      h_quake:"今日より前に、2024年の地震のあとの能登へ行くことに不安はありましたか？",
+      see_type:"旅のタイプを見る",
+      eyebrow_result:"あなたの旅のタイプ", your_day:"あなたの一日",
+      road_yes:"遠出OK：いい一日なら、長い移動も気にしない。",
+      road_no:"近場派：移動より、その場で過ごす時間を大事にする。",
+      saving:"保存しています…", saved:"保存しました。ありがとうございました！",
+      queued:"このスマホに保存しました。次にページを開いたときに自動で送ります。",
+      preview:"お試しモード：この回答は保存されていません。", failed:"保存できませんでした。主催者に知らせてください。",
+      org_summary:"主催者用：メモを残す", memo_label:"聞いたこと",
+      memo_ph:"例：静かに過ごしたいので禅を選んだ。ガイドが良ければ3時間の移動もOKとのこと。", memo_save:"メモを保存",
+      memo_empty:"先にメモを書いてください。", memo_ok:"メモを保存しました。",
+      memo_ng:"メモを保存できませんでした。回答の送信がまだ終わっていないかもしれません。少し待ってからもう一度押してください。",
+      again:"次の人へ",
+      mode_preview:"お試しモード：回答はまだ保存されません。", mode_test:"テストモード：回答は保存されますが、集計には入りません。",
+      count:"{i} / {n}", drive_a:"車で約", drive_l:"1日の合計", hrs_near:"1時間", hrs_far:"3時間",
+      carline:"車で約{h}（1日の合計）", base:"七尾発・七尾着",
+      tag4:"たぶんする", tag5:"ぜひしたい"
+    }
+  };
+
   // photo: image path or URL. Photos show only when all eight cards have one.
   // credit: shown on the photo for Creative Commons images (author / license, linked to the file page).
   var WM = "https://upload.wikimedia.org/wikipedia/commons/thumb/";
   var CM = "https://commons.wikimedia.org/wiki/File:";
   var CARDS = [
-    {id:"heal-near", theme:"heal", dist:"near", k:"静", photo:"img/heal-near.jpg", title:"A Quiet Day by Nanao Bay",
-     stops:["Zazen meditation at a local Zen temple","Lunch in Nanao","Tea in a host's tatami room","Five silent minutes by the sea"]},
-    {id:"heal-far", theme:"heal", dist:"far", k:"禅", title:"Zen at Sojiji Soin",
+    {id:"heal-near", theme:"heal", dist:"near", k:"静", photo:"img/heal-near.jpg",
+     en:{title:"A Quiet Day by Nanao Bay", stops:["Zazen meditation at a local Zen temple","Lunch in Nanao","Tea in a host's tatami room","Five silent minutes by the sea"]},
+     ja:{title:"七尾湾で過ごす静かな一日", stops:["地元の禅寺で坐禅","七尾で昼食","ホストの家の和室でお茶","海の前で5分、黙って過ごす"]}},
+    {id:"heal-far", theme:"heal", dist:"far", k:"禅",
      photo:WM + "5/57/%E7%B8%BD%E6%8C%81%E5%AF%BA%E7%A5%96%E9%99%A2%E5%B1%B1%E9%96%80.jpg/1280px-%E7%B8%BD%E6%8C%81%E5%AF%BA%E7%A5%96%E9%99%A2%E5%B1%B1%E9%96%80.jpg",
      credit:{text:"Mikkabie / CC BY-SA 4.0", url:CM + "%E7%B8%BD%E6%8C%81%E5%AF%BA%E7%A5%96%E9%99%A2%E5%B1%B1%E9%96%80.jpg"},
-     stops:["Zazen at Sojiji Soin, a Zen temple founded in 1321","Lunch in a small port town","Tea in a host's tatami room","An evening by candlelight"]},
-    {id:"culture-near", theme:"culture", dist:"near", k:"漆", title:"Makers of Ipponsugi Street",
+     en:{title:"Zen at Sojiji Soin", stops:["Zazen at Sojiji Soin, a Zen temple founded in 1321","Lunch in a small port town","Tea in a host's tatami room","An evening by candlelight"]},
+     ja:{title:"總持寺祖院で禅にふれる", stops:["1321年開創の禅寺・總持寺祖院で坐禅","小さな港町で昼食","ホストの家の和室でお茶","キャンドルの灯りで過ごす夜"]}},
+    {id:"culture-near", theme:"culture", dist:"near", k:"漆",
      photo:WM + "6/6f/Wajima-nuri_chopsticks_ac_%282%29.jpg/1280px-Wajima-nuri_chopsticks_ac_%282%29.jpg",
      credit:{text:"Asturio Cantabrio / CC BY-SA 4.0", url:CM + "Wajima-nuri_chopsticks_ac_(2).jpg"},
-     stops:["Carve gold into lacquer (chinkin) with a local master","A 100-year-old soy sauce brewery","A traditional Japanese candle maker","An evening by candlelight on a 600-year-old street"]},
-    {id:"culture-far", theme:"culture", dist:"far", k:"匠", title:"Lacquer Masters of Wajima",
+     en:{title:"Makers of Ipponsugi Street", stops:["Carve gold into lacquer (chinkin) with a local master","A 100-year-old soy sauce brewery","A traditional Japanese candle maker","An evening by candlelight on a 600-year-old street"]},
+     ja:{title:"一本杉通りのつくり手たち", stops:["地元の職人と沈金（漆に金を彫り込む）体験","創業100年の醤油蔵","和ろうそくの店","600年続く通りで過ごすキャンドルの夜"]}},
+    {id:"culture-far", theme:"culture", dist:"far", k:"匠",
      photo:WM + "b/b9/Wajima-nuri_red_rice_bowl.jpg/1280px-Wajima-nuri_red_rice_bowl.jpg",
      credit:{text:"yuuki / CC BY-SA 4.0", url:CM + "Wajima-nuri_red_rice_bowl.jpg"},
-     stops:["Sojiji Soin, a Zen temple founded in 1321","Lunch on the coast","The workshop of a Wajima-nuri lacquer artisan","Tea in a host's tatami room"]},
-    {id:"active-near", theme:"active", dist:"near", k:"海", title:"Paddle and Walk Noto Island",
+     en:{title:"Lacquer Masters of Wajima", stops:["Sojiji Soin, a Zen temple founded in 1321","Lunch on the coast","The workshop of a Wajima-nuri lacquer artisan","Tea in a host's tatami room"]},
+     ja:{title:"輪島塗の職人を訪ねる", stops:["1321年開創の禅寺・總持寺祖院","海辺で昼食","輪島塗の職人の工房","ホストの家の和室でお茶"]}},
+    {id:"active-near", theme:"active", dist:"near", k:"海",
      photo:WM + "e/e4/Notojima_Bridge_-_Nanao%2C_Ishikawa%2C_Japan_-_DSC00755.jpg/1280px-Notojima_Bridge_-_Nanao%2C_Ishikawa%2C_Japan_-_DSC00755.jpg",
      credit:{text:"Daderot / CC0", url:CM + "Notojima_Bridge_-_Nanao,_Ishikawa,_Japan_-_DSC00755.jpg"},
-     stops:["Private stand-up paddleboarding on Nanao Bay","Lunch on Noto Island","Walk across the 1 km Notojima Bridge","An evening by candlelight"]},
-    {id:"local-near", theme:"local", dist:"near", k:"縁", photo:"img/local-near.jpg", title:"Stories of Ipponsugi",
-     stops:["Tea at a local host's home","Walk a 600-year-old merchant street with its shopkeepers","Hear how they are rebuilding after the 2024 earthquake","Dinner at a neighborhood restaurant"]},
-    {id:"food-near", theme:"food", dist:"near", k:"鮨", photo:"img/food-near.jpg", pos:"50% 18%", title:"Sushi, Three Ways",
-     stops:["Carve your own lacquer chopsticks","Lunch at a local sushi counter","Make nigiri with a chef in a private session","Dinner at a master's counter the locals love"],
-     extra:"Also: a 100-year-old soy sauce brewery and this year's new rice"},
-    {id:"food-far", theme:"food", dist:"far", k:"酒", photo:"img/food-far.jpg", title:"Sake and Sushi of Oku-Noto",
-     stops:["A sake brewery in brewing season","Sushi lunch in a fishing port","Walk the port town","Dinner at a master's counter the locals love"]}
+     en:{title:"Paddle and Walk Noto Island", stops:["Private stand-up paddleboarding on Nanao Bay","Lunch on Noto Island","Walk across the 1 km Notojima Bridge","An evening by candlelight"]},
+     ja:{title:"能登島を漕いで、歩く", stops:["七尾湾で貸切のSUP","能登島で昼食","長さ1kmの能登島大橋を歩いて渡る","キャンドルの灯りで過ごす夜"]}},
+    {id:"local-near", theme:"local", dist:"near", k:"縁", photo:"img/local-near.jpg",
+     en:{title:"Stories of Ipponsugi", stops:["Tea at a local host's home","Walk a 600-year-old merchant street with its shopkeepers","Hear how they are rebuilding after the 2024 earthquake","Dinner at a neighborhood restaurant"]},
+     ja:{title:"一本杉の人たちの物語", stops:["地元のホストの家でお茶","600年続く商店街を店主と歩く","2024年の地震からの再建の話を聞く","近所の食堂で夕食"]}},
+    {id:"food-near", theme:"food", dist:"near", k:"鮨", photo:"img/food-near.jpg", pos:"50% 18%",
+     en:{title:"Sushi, Three Ways", stops:["Carve your own lacquer chopsticks","Lunch at a local sushi counter","Make nigiri with a chef in a private session","Dinner at a master's counter the locals love"], extra:"Also: a 100-year-old soy sauce brewery and this year's new rice"},
+     ja:{title:"寿司を三つの形で", stops:["漆の箸を自分で彫る","地元の寿司店で昼食","職人と貸切でにぎり体験","地元の人が通う名店のカウンターで夕食"], extra:"ほかに：創業100年の醤油蔵と、今年の新米"}},
+    {id:"food-far", theme:"food", dist:"far", k:"酒", photo:"img/food-far.jpg",
+     en:{title:"Sake and Sushi of Oku-Noto", stops:["A sake brewery in brewing season","Sushi lunch in a fishing port","Walk the port town","Dinner at a master's counter the locals love"]},
+     ja:{title:"奥能登の酒と寿司", stops:["仕込みの季節の酒蔵へ","漁港の町で寿司の昼食","港町を歩く","地元の人が通う名店のカウンターで夕食"]}}
   ];
   var BY = {}; CARDS.forEach(function(c){ BY[c.id] = c; });
   var USE_PHOTOS = CARDS.every(function(c){ return !!c.photo; });
   var PAIRS = [
-    {theme:"heal", label:"A quiet day", near:"heal-near", far:"heal-far"},
-    {theme:"culture", label:"Craft and culture", near:"culture-near", far:"culture-far"},
-    {theme:"food", label:"Sushi", near:"food-near", far:"food-far"}
+    {theme:"heal", near:"heal-near", far:"heal-far"},
+    {theme:"culture", near:"culture-near", far:"culture-far"},
+    {theme:"food", near:"food-near", far:"food-far"}
   ];
 
   var TYPES = {
-    heal:{name:"Quiet Seeker", k:"静", desc:"You travel to slow down. Space, stillness, and time with nothing scheduled."},
-    culture:{name:"Culture Diver", k:"漆", desc:"You want to see how things are made, and meet the hands that make them."},
-    active:{name:"Active Explorer", k:"海", desc:"You would rather move through a place than look at it."},
-    local:{name:"Local Connector", k:"縁", desc:"For you, the best part of a trip is the people you meet."},
-    food:{name:"Food Pilgrim", k:"鮨", desc:"You would cross a peninsula for the right meal."}
+    heal:{k:"静", en:{name:"Quiet Seeker", desc:"You travel to slow down. Space, stillness, and time with nothing scheduled."}, ja:{name:"静けさを求める人", desc:"旅は、ゆっくりするためのもの。静けさと、予定のない時間を大事にする人。"}},
+    culture:{k:"漆", en:{name:"Culture Diver", desc:"You want to see how things are made, and meet the hands that make them."}, ja:{name:"文化に飛び込む人", desc:"ものがどう作られるかを見て、作る人に会いたい人。"}},
+    active:{k:"海", en:{name:"Active Explorer", desc:"You would rather move through a place than look at it."}, ja:{name:"体で旅する人", desc:"眺めるより、体を動かしてその土地を味わいたい人。"}},
+    local:{k:"縁", en:{name:"Local Connector", desc:"For you, the best part of a trip is the people you meet."}, ja:{name:"人に会いに行く人", desc:"旅でいちばん大事なのは、出会う人。"}},
+    food:{k:"鮨", en:{name:"Food Pilgrim", desc:"You would cross a peninsula for the right meal."}, ja:{name:"食を求めて旅する人", desc:"おいしい一皿のためなら、半島の先まで行く人。"}}
   };
-  var RATE_LABEL = {1:"Definitely not", 2:"Probably not", 3:"Maybe", 4:"Probably", 5:"Definitely", 0:"Didn't get it"};
   var STEPS = ["about","cards","pairs","reason","pick","price","wplus","wminus","quake"];
 
-  var REGIONS = ["Europe","North America","Latin America","Asia","Oceania","Middle East & Africa"];
-  var COMPANY = ["Solo","Partner","Friends","Family"];
-  var SPEND = ["Under $50","$50–150","$150–400","$400–1,000","Over $1,000"];
-  var PRICE = ["Under $100","$100–250","$250–500","$500–1,000","Over $1,000"];
-  var REASONS = ["Too long in the car","I don't know these places","Not my kind of day","Looks expensive","Something else"];
-  var WORDS = ["Unhurried","Ma (the space between)","Zen","Decide nothing","Hidden gem","Master craftsman","Hands-on","Local life","Private","Slow travel","Rebuilding","Off the beaten path"];
-  var QUAKE = ["No","A little","Yes, a lot","I didn't know about it"];
+  // Choices: v is what gets saved (the same in both languages), en / ja are what people see.
+  function opt(v, ja, en){ return {v:v, en:en || v, ja:ja}; }
+  var REGIONS = [opt("Europe","ヨーロッパ"), opt("North America","北米"), opt("Latin America","中南米"), opt("Asia","アジア"), opt("Oceania","オセアニア"), opt("Middle East & Africa","中東・アフリカ"), opt("Japan","日本")];
+  var COMPANY = [opt("Solo","ひとり"), opt("Partner","パートナー"), opt("Friends","友人"), opt("Family","家族")];
+  var SPEND = [opt("Under $50","7,500円未満"), opt("$50–150","7,500円〜2.2万円"), opt("$150–400","2.2万〜6万円"), opt("$400–1,000","6万〜15万円"), opt("Over $1,000","15万円以上")];
+  var PRICE = [opt("Under $100","1.5万円未満"), opt("$100–250","1.5万〜3.8万円"), opt("$250–500","3.8万〜7.5万円"), opt("$500–1,000","7.5万〜15万円"), opt("Over $1,000","15万円以上")];
+  var REASONS = [opt("Too long in the car","車の時間が長い"), opt("I don't know these places","どんな場所か知らない"), opt("Not my kind of day","好みの一日ではない"), opt("Looks expensive","高そう"), opt("Something else","その他")];
+  var WORDS = [opt("Unhurried","Unhurried（急がない）"), opt("Ma (the space between)","Ma（間）"), opt("Zen","Zen（禅）"), opt("Decide nothing","Decide nothing（何も決めない）"), opt("Hidden gem","Hidden gem（隠れた名所）"), opt("Master craftsman","Master craftsman（名工）"), opt("Hands-on","Hands-on（体験型）"), opt("Local life","Local life（地元の暮らし）"), opt("Private","Private（貸切）"), opt("Slow travel","Slow travel（ゆっくり旅）"), opt("Rebuilding","Rebuilding（復興）"), opt("Off the beaten path","Off the beaten path（知る人ぞ知る）")];
+  var QUAKE = [opt("No","なかった"), opt("A little","少しあった"), opt("Yes, a lot","とてもあった"), opt("I didn't know about it","地震のことを知らなかった")];
 
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var SRC = (location.hash || "").replace(/^#/, "").replace(/[^A-Za-z0-9_.~-]/g, "").slice(0, 40);
-  var OUTBOX = "ndm_outbox_v1";
+  var OUTBOX = "ndm_outbox_v1", LANG_KEY = "ndm_lang";
 
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(ch){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]; }); }
   function shuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-  function hrs(c){ return c.dist === "far" ? "3 hrs" : "1 hr"; }
-  function carLine(c){ return "About " + hrs(c) + " in the car, all day"; }
   function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
   function uuid(){
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -346,6 +444,36 @@ details.org[open] summary{margin-bottom:10px}
     var h = Array.prototype.map.call(b, function(x){ return (x + 256).toString(16).slice(1); }).join("");
     return h.slice(0, 8) + "-" + h.slice(8, 12) + "-" + h.slice(12, 16) + "-" + h.slice(16, 20) + "-" + h.slice(20);
   }
+
+  // ---------- language ----------
+  var LANG = (function(){
+    var q = (location.search.match(/[?&]lang=(en|ja)\b/) || [])[1];
+    if (q) return q;
+    try { var s = localStorage.getItem(LANG_KEY); if (s === "en" || s === "ja") return s; } catch (e) {}
+    return "en";
+  })();
+  function t(key){ return (T[LANG] && T[LANG][key] != null) ? T[LANG][key] : T.en[key]; }
+  function tx(c){ return c[LANG] || c.en; }
+  function hrs(c){ return t(c.dist === "far" ? "hrs_far" : "hrs_near"); }
+  function carLine(c){ return t("carline").replace("{h}", hrs(c)); }
+  function applyLang(){
+    document.documentElement.lang = LANG;
+    document.querySelectorAll("[data-t]").forEach(function(el){ el.textContent = t(el.getAttribute("data-t")); });
+    document.querySelectorAll("[data-th]").forEach(function(el){ el.innerHTML = t(el.getAttribute("data-th")); });
+    document.querySelectorAll("[data-tp]").forEach(function(el){ el.setAttribute("placeholder", t(el.getAttribute("data-tp"))); });
+    document.querySelectorAll(".lang button").forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-lang") === LANG ? "true" : "false"); });
+    var note = $("mode-note");
+    if (!ENDPOINT) { note.hidden = false; note.textContent = t("mode_preview"); }
+    else if (SRC === "test") { note.hidden = false; note.textContent = t("mode_test"); }
+    else note.hidden = true;
+  }
+  document.querySelectorAll(".lang button").forEach(function(b){
+    b.addEventListener("click", function(){
+      LANG = b.getAttribute("data-lang");
+      try { localStorage.setItem(LANG_KEY, LANG); } catch (e) {}
+      applyLang(); fresh();
+    });
+  });
 
   // ---------- saving ----------
   function readOutbox(){ try { var v = JSON.parse(localStorage.getItem(OUTBOX) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
@@ -381,7 +509,7 @@ details.org[open] summary{margin-bottom:10px}
   var S, current = "start", busy = false, topCard = null;
   function fresh(){
     S = {id:uuid(), about:{}, order:shuffle(CARDS.map(function(c){ return c.id; })), idx:0, ratings:[], pairs:{}, farReasons:[],
-         pick:null, why:"", price:null, wordsPlus:[], wordsMinus:[], quake:null, t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0, saved:false};
+         pick:null, why:"", price:null, wordsPlus:[], wordsMinus:[], quake:null, t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0};
     $("why").value = ""; $("memo").value = ""; $("memo-status").textContent = ""; $("org").open = false;
     buildChoice("q-region", REGIONS, function(v){ S.about.region = v; checkAbout(); });
     buildChoice("q-company", COMPANY, function(v){ S.about.company = v; checkAbout(); });
@@ -402,29 +530,29 @@ details.org[open] summary{margin-bottom:10px}
     var box = $(id); box.innerHTML = "";
     options.forEach(function(o){
       var b = document.createElement("button");
-      b.type = "button"; b.className = "chip"; b.textContent = o; b.setAttribute("aria-pressed", "false");
+      b.type = "button"; b.className = "chip"; b.textContent = o[LANG] || o.en; b.setAttribute("aria-pressed", "false"); b.setAttribute("data-v", o.v);
       b.addEventListener("click", function(){
         box.querySelectorAll(".chip").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
-        b.setAttribute("aria-pressed", "true"); onPick(o);
+        b.setAttribute("aria-pressed", "true"); onPick(o.v);
       });
       box.appendChild(b);
     });
   }
-  // Multi-select: each tap adds or removes the word from `list`.
+  // Multi-select: each tap adds or removes the value from `list`.
   function buildMulti(id, options, list, tone, mark, disabled){
     var box = $(id); box.innerHTML = "";
     options.forEach(function(o){
       var b = document.createElement("button");
-      b.type = "button"; b.className = "chip" + (tone ? " " + tone : "");
-      b.setAttribute("aria-pressed", list.indexOf(o) >= 0 ? "true" : "false");
-      if (disabled && disabled.indexOf(o) >= 0) { b.disabled = true; b.title = "You chose this as a word that draws you in"; }
-      var mk = document.createElement("span"); mk.className = "mk"; mk.setAttribute("aria-hidden", "true"); mk.textContent = list.indexOf(o) >= 0 && mark ? mark : "";
-      var tx = document.createElement("span"); tx.textContent = o;
-      b.appendChild(mk); b.appendChild(tx);
+      b.type = "button"; b.className = "chip" + (tone ? " " + tone : ""); b.setAttribute("data-v", o.v);
+      b.setAttribute("aria-pressed", list.indexOf(o.v) >= 0 ? "true" : "false");
+      if (disabled && disabled.indexOf(o.v) >= 0) { b.disabled = true; b.title = t("wplus_taken"); }
+      var mk = document.createElement("span"); mk.className = "mk"; mk.setAttribute("aria-hidden", "true"); mk.textContent = list.indexOf(o.v) >= 0 && mark ? mark : "";
+      var sp = document.createElement("span"); sp.textContent = o[LANG] || o.en;
+      b.appendChild(mk); b.appendChild(sp);
       b.addEventListener("click", function(){
-        var i = list.indexOf(o);
-        if (i >= 0) list.splice(i, 1); else list.push(o);
-        var on = list.indexOf(o) >= 0;
+        var i = list.indexOf(o.v);
+        if (i >= 0) list.splice(i, 1); else list.push(o.v);
+        var on = list.indexOf(o.v) >= 0;
         b.setAttribute("aria-pressed", on ? "true" : "false");
         mk.textContent = on && mark ? mark : "";
       });
@@ -445,22 +573,23 @@ details.org[open] summary{margin-bottom:10px}
     if (name === "price") $("price-card").innerHTML = pickedHtml(BY[S.pick]);
     if (name === "wminus") buildMulti("q-wminus", WORDS, S.wordsMinus, "bad", "✗", S.wordsPlus);
   }
-  function pickedHtml(c){ return '<span class="k" aria-hidden="true">' + c.k + '</span><div><div class="t">' + esc(c.title) + '</div><div class="note">' + esc(carLine(c)) + '</div></div>'; }
+  function pickedHtml(c){ return '<span class="k" aria-hidden="true">' + c.k + '</span><div><div class="t">' + esc(tx(c).title) + '</div><div class="note">' + esc(carLine(c)) + '</div></div>'; }
+  function imgTag(c){ return '<img src="' + esc(c.photo) + '" alt=""' + (c.pos ? ' style="object-position:' + esc(c.pos) + '"' : '') + '>'; }
 
   // ---------- cards ----------
   function cardEl(c){
-    var a = document.createElement("article");
-    a.className = "card enter"; a.setAttribute("aria-label", c.title);
-    var stops = c.stops.map(function(s){ return "<li>" + esc(s) + "</li>"; }).join("");
-    var drive = '<div class="drive"><span class="drive-a">About</span><span class="drive-n">' + hrs(c) + '</span><span class="drive-l">in the car, all day</span></div>';
+    var a = document.createElement("article"), x = tx(c);
+    a.className = "card enter"; a.setAttribute("aria-label", x.title);
+    var stops = x.stops.map(function(s){ return "<li>" + esc(s) + "</li>"; }).join("");
+    var drive = '<div class="drive"><span class="drive-a">' + esc(t("drive_a")) + '</span><span class="drive-n">' + esc(hrs(c)) + '</span><span class="drive-l">' + esc(t("drive_l")) + '</span></div>';
     var credit = c.credit ? '<a class="credit" href="' + esc(c.credit.url) + '" target="_blank" rel="noopener">Photo: ' + esc(c.credit.text) + '</a>' : '';
     var hero = USE_PHOTOS
-      ? '<div class="card-photo"><img src="' + esc(c.photo) + '" alt=""' + (c.pos ? ' style="object-position:' + esc(c.pos) + '"' : '') + '><span class="kchip" aria-hidden="true">' + c.k + '</span>' + drive + credit + '</div>'
+      ? '<div class="card-photo">' + imgTag(c) + '<span class="kchip" aria-hidden="true">' + c.k + '</span>' + drive + credit + '</div>'
       : '<div class="card-hero"><span class="kanji" aria-hidden="true">' + c.k + '</span>' + drive + '</div>';
     a.innerHTML = hero +
-      '<div class="card-body"><h3 class="card-title">' + esc(c.title) + '</h3><ol class="stops">' + stops + '</ol>' +
-      (c.extra ? '<p class="extra">' + esc(c.extra) + '</p>' : '') +
-      '<p class="base">Starts and ends in Nanao</p></div>';
+      '<div class="card-body"><h3 class="card-title">' + esc(x.title) + '</h3><ol class="stops">' + stops + '</ol>' +
+      (x.extra ? '<p class="extra">' + esc(x.extra) + '</p>' : '') +
+      '<p class="base">' + esc(t("base")) + '</p></div>';
     return a;
   }
   function renderCard(){
@@ -470,16 +599,16 @@ details.org[open] summary{margin-bottom:10px}
     var nx = BY[S.order[S.idx + 1]];
     if (USE_PHOTOS && nx) { var pre = new Image(); pre.src = nx.photo; }
     S.shownAt = performance.now();
-    $("count").textContent = (S.idx + 1) + " of " + S.order.length;
+    $("count").textContent = t("count").replace("{i}", S.idx + 1).replace("{n}", S.order.length);
     $("bar").style.width = (S.idx / S.order.length * 100) + "%";
   }
   function fly(el, r){
     return new Promise(function(res){
       if (reduced) { setTimeout(res, 80); return; }
       var W = window.innerWidth, H = window.innerHeight;
-      var t = r >= 4 ? [W, 0, 14] : (r >= 1 && r <= 2 ? [-W, 0, -14] : [0, H * 0.6, 0]);
+      var d = r >= 4 ? [W, 0, 14] : (r >= 1 && r <= 2 ? [-W, 0, -14] : [0, H * 0.6, 0]);
       el.classList.remove("enter"); el.classList.add("fly");
-      requestAnimationFrame(function(){ el.style.transform = "translate(" + t[0] + "px," + t[1] + "px) rotate(" + t[2] + "deg)"; el.style.opacity = "0"; });
+      requestAnimationFrame(function(){ el.style.transform = "translate(" + d[0] + "px," + d[1] + "px) rotate(" + d[2] + "deg)"; el.style.opacity = "0"; });
       setTimeout(res, 270);
     });
   }
@@ -507,14 +636,14 @@ details.org[open] summary{margin-bottom:10px}
     var box = $("pairs"); box.innerHTML = "";
     PAIRS.forEach(function(p){
       var wrap = document.createElement("div"); wrap.className = "pair";
-      var lab = document.createElement("p"); lab.className = "pair-label"; lab.textContent = p.label;
+      var lab = document.createElement("p"); lab.className = "pair-label"; lab.textContent = t("pair_" + p.theme);
       var opts = document.createElement("div"); opts.className = "pair-opts";
       ["near", "far"].forEach(function(side){
         var c = BY[p[side]];
         var b = document.createElement("button");
         b.type = "button"; b.className = "opt"; b.setAttribute("aria-pressed", S.pairs[p.theme] === side ? "true" : "false");
-        b.innerHTML = (USE_PHOTOS ? '<img src="' + esc(c.photo) + '" alt=""' + (c.pos ? ' style="object-position:' + esc(c.pos) + '"' : '') + '>' : '<span class="k" aria-hidden="true">' + c.k + '</span>') +
-          '<span class="t">' + esc(c.title) + '</span><span class="s">' + esc(carLine(c)) + '</span>';
+        b.innerHTML = (USE_PHOTOS ? imgTag(c) : '<span class="k" aria-hidden="true">' + c.k + '</span>') +
+          '<span class="t">' + esc(tx(c).title) + '</span><span class="s">' + esc(carLine(c)) + '</span>';
         b.addEventListener("click", function(){
           opts.querySelectorAll(".opt").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
           b.setAttribute("aria-pressed", "true"); S.pairs[p.theme] = side;
@@ -540,8 +669,8 @@ details.org[open] summary{margin-bottom:10px}
       var c = BY[s.id];
       var b = document.createElement("button");
       b.type = "button"; b.className = "pick"; b.setAttribute("aria-pressed", "false"); b.setAttribute("data-id", c.id);
-      b.innerHTML = '<span class="k" aria-hidden="true">' + c.k + '</span><span><span class="t">' + esc(c.title) + '</span><span class="s">' + esc(carLine(c)) + '</span></span>' +
-        (s.r >= 4 ? '<span class="tag">' + esc(RATE_LABEL[s.r]) + '</span>' : '');
+      b.innerHTML = '<span class="k" aria-hidden="true">' + c.k + '</span><span><span class="t">' + esc(tx(c).title) + '</span><span class="s">' + esc(carLine(c)) + '</span></span>' +
+        (s.r >= 4 ? '<span class="tag">' + esc(t("tag" + s.r)) + '</span>' : '');
       b.addEventListener("click", function(){
         list.querySelectorAll(".pick").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
         b.setAttribute("aria-pressed", "true"); S.pick = c.id; $("b-pick-next").disabled = false;
@@ -558,15 +687,15 @@ details.org[open] summary{margin-bottom:10px}
   }
   async function finish(){
     closeStep();
-    var r = computeType(), T = TYPES[r.type];
-    $("r-kanji").textContent = T.k; $("r-type").textContent = T.name; $("r-desc").textContent = T.desc;
+    var r = computeType(), TY = TYPES[r.type], tt = TY[LANG] || TY.en;
+    $("r-kanji").textContent = TY.k; $("r-type").textContent = tt.name; $("r-desc").textContent = tt.desc;
     var dist = $("r-dist"); dist.hidden = false;
-    dist.textContent = r.road ? "Road tripper: a long drive is fine when the day is worth it." : "Stay close: you would rather spend the day there than on the road.";
-    $("r-pick").innerHTML = '<span class="k" aria-hidden="true">' + BY[S.pick].k + '</span><div><div class="note">Your one day</div><div class="t">' + esc(BY[S.pick].title) + '</div></div>';
-    $("r-save").textContent = "Saving…";
+    dist.textContent = t(r.road ? "road_yes" : "road_no");
+    $("r-pick").innerHTML = '<span class="k" aria-hidden="true">' + BY[S.pick].k + '</span><div><div class="note">' + esc(t("your_day")) + '</div><div class="t">' + esc(tx(BY[S.pick]).title) + '</div></div>';
+    $("r-save").textContent = t("saving");
     show("result");
     var payload = {
-      v:3, id:S.id, createdAt:new Date().toISOString(), src:SRC,
+      v:4, id:S.id, createdAt:new Date().toISOString(), src:SRC, ui:LANG,
       lang:(navigator.language || "").slice(0, 20), mobile:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
       about:{region:S.about.region || "", company:S.about.company || "", maxSpend:S.about.maxSpend || ""},
       order:S.order, ratings:S.ratings, pairs:S.pairs, farReasons:S.farReasons, pick:S.pick, why:(S.why || "").slice(0, 200), price:S.price || "",
@@ -574,20 +703,15 @@ details.org[open] summary{margin-bottom:10px}
     };
     window.__ndmLast = payload;
     var status = await save(payload);
-    window.__ndmStatus = status; S.saved = status === "saved";
-    $("r-save").textContent = {
-      saved:"Saved. Thank you!",
-      queued:"Saved on this phone. It will upload the next time this page opens online.",
-      preview:"Preview mode: this answer was not saved.",
-      failed:"This answer couldn't be saved. Please tell the organizer."
-    }[status];
+    window.__ndmStatus = status;
+    $("r-save").textContent = t(status);
   }
   async function saveMemo(){
     var text = $("memo").value.trim();
-    if (!text) { $("memo-status").textContent = "Write a note first."; return; }
-    $("memo-status").textContent = "Saving…";
-    try { await post({kind:"memo", id:S.id, memo:text.slice(0, 500)}); $("memo-status").textContent = "Note saved."; window.__ndmMemo = "saved"; }
-    catch (e) { $("memo-status").textContent = "Couldn't save the note. The answer itself may still be uploading; try again in a moment."; window.__ndmMemo = "failed"; }
+    if (!text) { $("memo-status").textContent = t("memo_empty"); return; }
+    $("memo-status").textContent = t("saving");
+    try { await post({kind:"memo", id:S.id, memo:text.slice(0, 500)}); $("memo-status").textContent = t("memo_ok"); window.__ndmMemo = "saved"; }
+    catch (e) { $("memo-status").textContent = t("memo_ng"); window.__ndmMemo = "failed"; }
   }
 
   // ---------- wiring ----------
@@ -603,10 +727,7 @@ details.org[open] summary{margin-bottom:10px}
   $("b-memo").addEventListener("click", saveMemo);
   $("b-again").addEventListener("click", function(){ fresh(); show("start"); });
 
-  var note = $("mode-note");
-  if (!ENDPOINT) { note.hidden = false; note.textContent = "Preview mode: answers are not saved yet."; }
-  else if (SRC === "test") { note.hidden = false; note.textContent = "Test mode: answers are saved but left out of the summary."; }
-
+  applyLang();
   fresh();
   show("start");
   flushOutbox();

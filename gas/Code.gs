@@ -21,7 +21,7 @@ var PAIRS = [
   {theme:"food",    ja:"食（寿司）", near:"food-near",    far:"food-far"}
 ];
 var STEPS = ["about", "cards", "pairs", "reason", "pick", "price", "wplus", "wminus", "quake"];
-var REGIONS = ["Europe", "North America", "Latin America", "Asia", "Oceania", "Middle East & Africa"];
+var REGIONS = ["Europe", "North America", "Latin America", "Asia", "Oceania", "Middle East & Africa", "Japan"];
 var COMPANY = ["Solo", "Partner", "Friends", "Family"];
 var SPEND = ["Under $50", "$50–150", "$150–400", "$400–1,000", "Over $1,000"];
 var PRICE = ["Under $100", "$100–250", "$250–500", "$500–1,000", "Over $1,000"];
@@ -40,6 +40,7 @@ function headers_() {
   h.push("far_reasons", "words_plus", "words_minus");
   STEPS.forEach(function (s) { h.push("step_" + s + "_sec"); });
   h.push("memo", "raw_json");
+  h.push("ui_lang"); // v4で追加（末尾に足す＝既存の列の位置は変えない）
   return h;
 }
 
@@ -126,6 +127,7 @@ function check_(p) {
   if (p.quake && !inList_(QUAKE, p.quake)) return "bad_quake";
   if (p.type && !TYPES[p.type]) return "bad_type";
   if (p.why && String(p.why).length > 300) return "bad_why";
+  if (p.ui && ["en", "ja"].indexOf(p.ui) < 0) return "bad_ui";
   return "";
 }
 
@@ -150,6 +152,7 @@ function toRow_(p) {
   row.push(bar_(p.farReasons), bar_(p.wordsPlus), bar_(p.wordsMinus));
   STEPS.forEach(function (s) { row.push(p.steps && typeof p.steps[s] === "number" ? sec_(p.steps[s]) : ""); });
   row.push("", safe_(JSON.stringify(p)));
+  row.push(p.ui === "ja" ? "ja" : "en");
   return row;
 }
 
@@ -174,15 +177,19 @@ function sheet_() {
   var ss = ss_();
   if (ss.getSpreadsheetTimeZone() !== "Asia/Tokyo") ss.setSpreadsheetTimeZone("Asia/Tokyo"); // 新規シートは米国時間で作られるため
   var h = headers_();
+  var tag = Utilities.formatDate(new Date(), "Asia/Tokyo", "MMdd_HHmm");
   var sh = ss.getSheetByName("responses");
   if (sh) {
     var cur = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0];
-    if (cur.join("\t") !== h.join("\t")) {
+    var same = cur.join("\t") === h.join("\t");
+    var grown = !same && cur.length < h.length && h.slice(0, cur.length).join("\t") === cur.join("\t");
+    if (grown) {
+      // 列が末尾に足されただけ＝見出しだけ足す（これまでの回答はそのまま）
+      sh.getRange(1, cur.length + 1, 1, h.length - cur.length).setValues([h.slice(cur.length)]).setFontWeight("bold");
+    } else if (!same) {
       // 列の並びが変わった＝古いシートは名前を変えて残し、作り直す
-      var tag = Utilities.formatDate(new Date(), "Asia/Tokyo", "MMdd_HHmm");
       sh.setName("responses_old_" + tag);
-      var oldSum = ss.getSheetByName("集計");
-      if (oldSum) oldSum.setName("集計_old_" + tag);
+      ["集計", "集計（英語）", "集計（日本語）"].forEach(function (n) { var s = ss.getSheetByName(n); if (s) s.setName(n + "_old_" + tag); });
       sh = null;
     }
   }
@@ -194,7 +201,11 @@ function sheet_() {
     var first = ss.getSheetByName("シート1") || ss.getSheetByName("Sheet1");
     if (first && first.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(first);
   }
-  if (!ss.getSheetByName("集計")) buildSummary_(ss, h);
+  // v3までの「集計」は言語を分けていない＝名前を変えて残し、英語と日本語に分けて作り直す
+  var legacy = ss.getSheetByName("集計");
+  if (legacy) legacy.setName("集計_old_" + tag);
+  if (!ss.getSheetByName("集計（英語）")) buildSummary_(ss, h, "集計（英語）", false);
+  if (!ss.getSheetByName("集計（日本語）")) buildSummary_(ss, h, "集計（日本語）", true);
   return sh;
 }
 
@@ -212,15 +223,19 @@ function col_(n) {
 }
 
 // ---------- 集計シート ----------
-function buildSummary_(ss, h) {
-  var sm = ss.insertSheet("集計", 1);
-  function R(name) { var c = col_(h.indexOf(name) + 1); return "responses!$" + c + "$2:$" + c; }
-  var T = R("test"), ID = R("id");
+// isJa=false：英語の画面で答えた人（v3までの回答＝ui_lang が空の行も英語に数える）／isJa=true：日本語の画面で答えた人
+function buildSummary_(ss, h, name, isJa) {
+  var sm = ss.insertSheet(name, isJa ? 2 : 1);
+  function R(n) { var c = col_(h.indexOf(n) + 1); return "responses!$" + c + "$2:$" + c; }
+  var T = R("test"), ID = R("id"), L = R("ui_lang");
+  var LC = "," + L + "," + (isJa ? '"ja"' : '"<>ja"');   // COUNTIFS / AVERAGEIFS に足す条件
+  var LF = "," + L + (isJa ? '="ja"' : '<>"ja"');        // FILTER に足す条件
+  var NT = T + ',"<>test"' + LC;                          // 「テストを除く・この言語」の共通条件
   var W = 12;
   function pad(row) { while (row.length < W) row.push(""); return row; }
   var rows = [];
-  rows.push(pad(["集計（リンク末尾に #test を付けた回答は除く）"]));
-  rows.push(pad(["回答数", '=COUNTIFS(' + ID + ',"<>",' + T + ',"<>test")']));
+  rows.push(pad(["集計（" + (isJa ? "日本語" : "英語") + "の画面で答えた人・リンク末尾に #test を付けた回答は除く）"]));
+  rows.push(pad(["回答数", '=COUNTIFS(' + ID + ',"<>",' + NT + ')']));
   rows.push(pad([]));
   rows.push(pad(["カード", "中身", "距離", "答えた人", "平均（5点満点）", "予約する（4〜5）", "迷う（3）", "予約しない（1〜2）", "分からない（?）", "迷った秒（中央値）", "「1日だけ」に選んだ人", "表示順の平均"]));
   var cardRow = {};
@@ -229,15 +244,15 @@ function buildSummary_(ss, h) {
     var C = R(c.id), S = R(c.id + "_sec"), P = R("pick"), O = R(c.id + "_pos");
     rows.push([
       c.k + " " + c.title, c.theme, c.dist,
-      '=COUNTIFS(' + C + ',"<>",' + T + ',"<>test")',
-      '=IFERROR(AVERAGEIFS(' + C + ',' + T + ',"<>test"),"")',
-      '=IFERROR(COUNTIFS(' + C + ',">=4",' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(COUNTIFS(' + C + ',3,' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(COUNTIFS(' + C + ',"<=2",' + C + ',">=1",' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(COUNTIFS(' + C + ',"~?",' + T + ',"<>test")/$D' + r + ',"")',
-      '=IFERROR(MEDIAN(FILTER(' + S + ',' + S + '<>"",' + T + '<>"test")),"")',
-      '=COUNTIFS(' + P + ',"' + c.id + '",' + T + ',"<>test")',
-      '=IFERROR(AVERAGEIFS(' + O + ',' + T + ',"<>test"),"")'
+      '=COUNTIFS(' + C + ',"<>",' + NT + ')',
+      '=IFERROR(AVERAGEIFS(' + C + ',' + NT + '),"")',
+      '=IFERROR(COUNTIFS(' + C + ',">=4",' + NT + ')/$D' + r + ',"")',
+      '=IFERROR(COUNTIFS(' + C + ',3,' + NT + ')/$D' + r + ',"")',
+      '=IFERROR(COUNTIFS(' + C + ',"<=2",' + C + ',">=1",' + NT + ')/$D' + r + ',"")',
+      '=IFERROR(COUNTIFS(' + C + ',"~?",' + NT + ')/$D' + r + ',"")',
+      '=IFERROR(MEDIAN(FILTER(' + S + ',' + S + '<>"",' + T + '<>"test"' + LF + ')),"")',
+      '=COUNTIFS(' + P + ',"' + c.id + '",' + NT + ')',
+      '=IFERROR(AVERAGEIFS(' + O + ',' + NT + '),"")'
     ]);
   });
   sm.getRange(1, 1, rows.length, W).setValues(rows);
@@ -251,8 +266,8 @@ function buildSummary_(ss, h) {
   PAIRS.forEach(function (p, i) {
     var rr = r0 + 1 + i, PC = R("pair_" + p.theme);
     block.push([p.ja, "=F" + cardRow[p.near], "=F" + cardRow[p.far], '=IFERROR(C' + rr + '-B' + rr + ',"")',
-      '=IFERROR(COUNTIFS(' + PC + ',"far",' + T + ',"<>test")/F' + rr + ',"")',
-      '=COUNTIFS(' + PC + ',"<>",' + T + ',"<>test")']);
+      '=IFERROR(COUNTIFS(' + PC + ',"far",' + NT + ')/F' + rr + ',"")',
+      '=COUNTIFS(' + PC + ',"<>",' + NT + ')']);
   });
   sm.getRange(r0, 1, block.length, 6).setValues(block);
   sm.getRange(r0 + 1, 2, PAIRS.length, 4).setNumberFormat("0%");
@@ -263,9 +278,9 @@ function buildSummary_(ss, h) {
     var b = [[title, "人数", "割合"]];
     items.forEach(function (it, i) {
       var label = Array.isArray(it) ? it[0] : it, v = Array.isArray(it) ? it[1] : it;
-      var q = String(v).replace(/"/g, '""').replace(/[~*?]/g, "~$&");
+      var q = String(v).replace(/"/g, '""').replace(/[~*?]/g, function (ch) { return "~" + ch; });
       var crit = contains ? '"*|' + q + '|*"' : '"' + q + '"';
-      b.push([label, '=COUNTIFS(' + R(colName) + ',' + crit + ',' + T + ',"<>test")', '=IFERROR(B' + (r + 1 + i) + '/$B$2,"")']);
+      b.push([label, '=COUNTIFS(' + R(colName) + ',' + crit + ',' + NT + ')', '=IFERROR(B' + (r + 1 + i) + '/$B$2,"")']);
     });
     sm.getRange(r, 1, b.length, 3).setValues(b);
     sm.getRange(r + 1, 3, items.length, 1).setNumberFormat("0%");
