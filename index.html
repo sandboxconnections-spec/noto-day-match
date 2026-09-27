@@ -94,6 +94,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-vi
 .drive-n{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums}
 .drive-l{font-size:12px;color:var(--ink-2)}
 .card-body{padding:14px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.concept{font-size:12.5px;font-weight:700;letter-spacing:.03em;color:var(--urushi);margin:0;line-height:1.4}
 .card-title{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.2;margin:0;text-wrap:balance}
 .stops{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
 .stops li{position:relative;padding-left:22px;font-size:15px;line-height:1.4}
@@ -587,6 +588,16 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
     "food-far":[null,"sake-brewery","sushi-lunch-port","port-walk","master-dinner",null]
   };
   var HEART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-10-9.3C.4 8.6 2.1 5 5.6 5c2 0 3.3 1.1 4.1 2.3h.6C11.1 6.1 12.4 5 14.4 5 17.9 5 19.6 8.6 18 11.7 16.5 14.6 12 21 12 21z" transform="translate(2 0)"/></svg>';
+  // Concept of each theme, in the same "a journey ..." form and similar length (a stronger line on one card would favour it).
+  // food = the organizer's own words; the other four are drafts waiting for the organizer's check.
+  var CONCEPT = {
+    food:{en:"A journey to the source of sushi", ja:"寿司とその源流をたどる旅"},
+    heal:{en:"A journey to quiet the mind, by temple and sea", ja:"禅と海で、心を整える旅"},
+    culture:{en:"A journey into the hands of lacquer masters", ja:"漆の職人の手しごとに触れる旅"},
+    active:{en:"A journey to feel Noto's sea with your whole body", ja:"能登の海を、体ごと味わう旅"},
+    local:{en:"A journey to meet the people rebuilding their town", ja:"町を立て直す人たちに会いに行く旅"}
+  };
+  function concept(c){ var x = CONCEPT[c.theme]; return x ? (x[LANG] || x.en) : ""; }
   var BY = {}; CARDS.forEach(function(c){ BY[c.id] = c; });
   var USE_PHOTOS = CARDS.every(function(c){ return !!c.photo; });
   var PAIRS = [
@@ -793,7 +804,7 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
       ? '<div class="card-photo">' + imgTag(c) + '<span class="kchip" aria-hidden="true">' + c.k + '</span>' + drive + credit + '</div>'
       : '<div class="card-hero"><span class="kanji" aria-hidden="true">' + c.k + '</span>' + drive + '</div>';
     a.innerHTML = hero +
-      '<div class="card-body"><h3 class="card-title">' + esc(x.title) + '</h3><ol class="stops">' + stops + '</ol>' +
+      '<div class="card-body"><p class="concept">' + esc(concept(c)) + '</p><h3 class="card-title">' + esc(x.title) + '</h3><ol class="stops">' + stops + '</ol>' +
       (x.extra ? '<p class="extra">' + esc(x.extra) + '</p>' : '') +
       '<p class="base">' + esc(t("base")) + '</p><button class="more" type="button">' + esc(t("more")) + '</button></div>';
     a.querySelector('.card-body').addEventListener('click', function(){ openSheet(c.id); });
@@ -850,7 +861,7 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
     var ph = $("fly-photo"); ph.hidden = !USE_PHOTOS;
     ph.innerHTML = USE_PHOTOS ? imgTag(c) + '<span class="kchip" aria-hidden="true">' + c.k + '</span>' : "";
     var facts = [t("fly_hours").replace("{n}", f.hours), t("fly_private"), carLine(c), t("base")];
-    $("fly-body").innerHTML = '<h2 class="fly-title" id="fly-title">' + esc(x.title) + '</h2>' +
+    $("fly-body").innerHTML = '<p class="concept">' + esc(concept(c)) + '</p><h2 class="fly-title" id="fly-title">' + esc(x.title) + '</h2>' +
       '<p class="fly-hook">' + esc(F.hook) + '</p>' +
       '<ul class="fly-facts">' + facts.map(function(s){ return '<li>' + esc(s) + '</li>'; }).join("") + '</ul>' +
       '<p class="fly-h">' + esc(t("fly_day")) + '</p><p class="fly-hint">' + esc(t("heart_hint")) + '</p>' +
@@ -882,7 +893,7 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
     var box = $("pairs"); box.innerHTML = "";
     PAIRS.forEach(function(p){
       var wrap = document.createElement("div"); wrap.className = "pair";
-      var lab = document.createElement("p"); lab.className = "pair-label"; lab.textContent = t("pair_" + p.theme);
+      var lab = document.createElement("p"); lab.className = "pair-label"; lab.textContent = concept(BY[p.near]) || t("pair_" + p.theme);
       var opts = document.createElement("div"); opts.className = "pair-opts";
       ["near", "far"].forEach(function(side){
         var c = BY[p[side]];
