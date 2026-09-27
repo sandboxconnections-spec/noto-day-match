@@ -81,7 +81,7 @@ function doPost(e) {
 function doGet(e) {
   var id = e && e.parameter ? String(e.parameter.id || "") : "";
   var sh = sheet_();
-  if (!id) return out_({ok: true, service: "noto-day-match", version: 3, rows: Math.max(0, sh.getLastRow() - 1)});
+  if (!id) return out_({ok: true, service: "noto-day-match", version: 4, rows: Math.max(0, sh.getLastRow() - 1)});
   if (!UUID_RE.test(id)) return out_({ok: false, error: "bad_id"});
   var r = findRow_(sh, id);
   if (!r) return out_({ok: true, found: false});
