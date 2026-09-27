@@ -30,7 +30,7 @@ var WORDS = ["Unhurried", "Ma (the space between)", "Zen", "Decide nothing", "Hi
 var QUAKE = ["No", "A little", "Yes, a lot", "I didn't know about it"];
 var TYPES = {heal:"Quiet Seeker", culture:"Culture Diver", active:"Active Explorer", local:"Local Connector", food:"Food Pilgrim"};
 var TYPE_JA = {heal:"癒し", culture:"カルチャー", active:"アクティビティ", local:"地元の人", food:"食"};
-var SUMMARY_VER = "v5"; // 集計シートの版。変えると次の呼び出しで集計シートを作り直す（回答の行は動かさない）
+var SUMMARY_VER = "v6"; // 集計シートの版。変えると次の呼び出しで集計シートを作り直す（回答の行は動かさない）
 var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 function headers_() {
@@ -43,6 +43,7 @@ function headers_() {
   h.push("memo", "raw_json");
   h.push("ui_lang"); // v4で追加（末尾に足す＝既存の列の位置は変えない）
   CARDS.forEach(function (c) { h.push(c.id + "_detail_sec"); }); // v5で追加：そのカードのチラシを開いていた秒（0＝開かなかった）
+  h.push("hearts"); // v6で追加：チラシでハートを付けたスポット（|カード:スポット|）。1件ずつの記録は「hearts」シート
   return h;
 }
 
@@ -71,7 +72,11 @@ function doPost(e) {
     var found = findRow_(sh, p.id);
     if (found) return out_({ok: true, row: found, duplicate: true});
     sh.appendRow(toRow_(p));
-    return out_({ok: true, row: sh.getLastRow()});
+    var rowNo = sh.getLastRow();
+    var hs = heartsSheet_(sh.getParent());
+    var hr = (p.hearts || []).map(function (x) { return [new Date(), p.id, x.c, x.s, safe_(x.lj), p.src === "test" ? "test" : "", p.ui === "ja" ? "ja" : "en"]; });
+    if (hr.length) hs.getRange(hs.getLastRow() + 1, 1, hr.length, 7).setValues(hr);
+    return out_({ok: true, row: rowNo, hearts: hr.length});
   } catch (x) {
     return out_({ok: false, error: String(x && x.message ? x.message : x)});
   } finally {
@@ -83,7 +88,7 @@ function doPost(e) {
 function doGet(e) {
   var id = e && e.parameter ? String(e.parameter.id || "") : "";
   var sh = sheet_();
-  if (!id) return out_({ok: true, service: "noto-day-match", version: 5, rows: Math.max(0, sh.getLastRow() - 1)});
+  if (!id) return out_({ok: true, service: "noto-day-match", version: 6, rows: Math.max(0, sh.getLastRow() - 1)});
   if (!UUID_RE.test(id)) return out_({ok: false, error: "bad_id"});
   var r = findRow_(sh, id);
   if (!r) return out_({ok: true, found: false});
@@ -131,6 +136,13 @@ function check_(p) {
   if (p.type && !TYPES[p.type]) return "bad_type";
   if (p.why && String(p.why).length > 300) return "bad_why";
   if (p.ui && ["en", "ja"].indexOf(p.ui) < 0) return "bad_ui";
+  if (p.hearts !== undefined) {
+    if (!Array.isArray(p.hearts) || p.hearts.length > 80) return "bad_hearts";
+    for (var k = 0; k < p.hearts.length; k++) {
+      var hh = p.hearts[k];
+      if (!hh || ids.indexOf(hh.c) < 0 || !/^[a-z0-9-]{2,40}$/.test(String(hh.s || "")) || String(hh.lj || "").length > 80) return "bad_heart";
+    }
+  }
   return "";
 }
 
@@ -157,6 +169,7 @@ function toRow_(p) {
   row.push("", safe_(JSON.stringify(p)));
   row.push(p.ui === "ja" ? "ja" : "en");
   CARDS.forEach(function (c) { var s = by[c.id]; row.push(s ? sec_(s.det || 0) : ""); });
+  row.push(bar_((p.hearts || []).map(function (x) { return x.c + ":" + x.s; })));
   return row;
 }
 
@@ -205,6 +218,7 @@ function sheet_() {
     var first = ss.getSheetByName("シート1") || ss.getSheetByName("Sheet1");
     if (first && first.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(first);
   }
+  heartsSheet_(ss); // 集計の式がこのシートを参照するので先に作る
   // v3までの「集計」は言語を分けていない＝名前を変えて残し、英語と日本語に分けて作り直す
   var legacy = ss.getSheetByName("集計");
   if (legacy) legacy.setName("集計_old_" + tag);
@@ -214,6 +228,18 @@ function sheet_() {
     if (!s) buildSummary_(ss, h, x[0], x[1]);
   });
   return sh;
+}
+
+// ハート1件＝1行（スポットの一覧をこちらに持たずに、集計でスポット別に数えるため）
+function heartsSheet_(ss) {
+  var hs = ss.getSheetByName("hearts");
+  if (!hs) {
+    hs = ss.insertSheet("hearts");
+    hs.getRange(1, 1, 1, 7).setValues([["received_at", "id", "card", "spot", "spot_label_ja", "test", "ui_lang"]]).setFontWeight("bold");
+    hs.setFrozenRows(1);
+    hs.getRange("A:A").setNumberFormat("yyyy-mm-dd hh:mm:ss");
+  }
+  return hs;
 }
 
 function findRow_(sh, id) {
@@ -245,7 +271,7 @@ function buildSummary_(ss, h, name, isJa) {
   rows.push(pad(["回答数", '=COUNTIFS(' + ID + ',"<>",' + NT + ')']));
   rows.push(pad([]));
   rows.push(pad(["カード", "中身", "距離", "答えた人", "平均（5点満点）", "予約する（4〜5）", "迷う（3）", "予約しない（1〜2）", "分からない（?）", "迷った秒（中央値）", "「1日だけ」に選んだ人", "表示順の平均", "チラシを開いた割合", "チラシを見た秒（中央値・開いた人）"]));
-  var cardRow = {};
+  var cardRow = {}, helper = [];
   CARDS.forEach(function (c, i) {
     var r = 5 + i; cardRow[c.id] = r;
     var C = R(c.id), S = R(c.id + "_sec"), P = R("pick"), O = R(c.id + "_pos"), D = R(c.id + "_detail_sec");
@@ -263,6 +289,7 @@ function buildSummary_(ss, h, name, isJa) {
       '=IFERROR(COUNTIFS(' + D + ',">0",' + NT + ')/COUNTIFS(' + D + ',"<>",' + NT + '),"")',
       '=IFERROR(MEDIAN(FILTER(' + D + ',' + D + '>0,' + T + '<>"test"' + LF + ')),"")'
     ]);
+    helper.push([c.id, '=COUNTIFS(' + D + ',">0",' + NT + ')']);
   });
   sm.getRange(1, 1, rows.length, W).setValues(rows);
   sm.getRange(5, 5, CARDS.length, 1).setNumberFormat("0.0");
@@ -272,6 +299,8 @@ function buildSummary_(ss, h, name, isJa) {
   sm.getRange(5, 13, CARDS.length, 1).setNumberFormat("0%");
   sm.getRange(5, 14, CARDS.length, 1).setNumberFormat("0.0");
   sm.getRange(1, 16).setValue(SUMMARY_VER).setFontColor("#999999");
+  sm.getRange(4, 17, 1, 2).setValues([["（計算用）カード", "チラシを開いた人"]]).setFontColor("#999999");
+  sm.getRange(5, 17, helper.length, 2).setValues(helper).setFontColor("#999999");
 
   var r0 = 5 + CARDS.length + 1;
   var block = [["近い版と遠い版", "予約する（近い）", "予約する（遠い）", "差（遠い−近い）", "二択で遠い版を選んだ割合", "二択に答えた人"]];
@@ -308,6 +337,16 @@ function buildSummary_(ss, h, name, isJa) {
   counts("1日の体験に払った最高額", "max_spend", SPEND, false);
   counts("言葉：惹かれる", "words_plus", WORDS, true);
   counts("言葉：引っかかる", "words_minus", WORDS, true);
+
+  // スポットのハート（チラシを開いた人が付けた数）。同じスポットが複数のツアーに出てくる＝右の表で全ツアー合計
+  var cond = "C is not null and (F is null or F <> 'test') and " + (isJa ? "G = 'ja'" : "(G is null or G <> 'ja')");
+  sm.getRange(r, 1, 1, 4).setValues([["スポットのハート（ツアー別）", "スポット", "ハートの数", "チラシを開いた人のうち"]]).setFontWeight("bold");
+  sm.getRange(r, 6, 1, 2).setValues([["スポットのハート（全ツアー合計）", "ハートの数"]]).setFontWeight("bold");
+  sm.getRange(r + 1, 1).setFormula('=IFERROR(QUERY(hearts!A2:G,"select C, E, count(B) where ' + cond + ' group by C, E order by count(B) desc label count(B) \'\'",0),"（まだありません）")');
+  sm.getRange(r + 1, 6).setFormula('=IFERROR(QUERY(hearts!A2:G,"select E, count(B) where ' + cond + ' group by E order by count(B) desc label count(B) \'\'",0),"（まだありません）")');
+  var rates = [];
+  for (var q = 0; q < 60; q++) { var rr2 = r + 1 + q; rates.push(['=IF(OR(A' + rr2 + '="",C' + rr2 + '=""),"",IFERROR(C' + rr2 + '/VLOOKUP(A' + rr2 + ',$Q$5:$R$12,2,FALSE),""))']); }
+  sm.getRange(r + 1, 4, 60, 1).setFormulas(rates).setNumberFormat("0%");
 
   sm.getRange(1, 1).setFontWeight("bold");
   sm.getRange(4, 1, 1, W).setFontWeight("bold");

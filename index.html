@@ -158,7 +158,11 @@ body.lock{overflow:hidden}
 .fly-facts li{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--surface)}
 .fly-h{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
-.tl li{display:grid;grid-template-columns:48px 1fr;gap:10px}
+.tl li{display:grid;grid-template-columns:48px 1fr 40px;gap:10px;align-items:start}
+.heart{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;width:38px;height:34px;display:grid;place-items:center;cursor:pointer;color:var(--ink-3);padding:0}
+.heart svg{width:18px;height:18px;display:block}
+.heart[aria-pressed="true"]{color:#fff;background:var(--urushi);border-color:var(--urushi)}
+.fly-hint{font-size:13px;color:var(--ink-2);margin:-6px 0 0}
 .tl time{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;color:var(--ink-2)}
 .tl b{display:block;font-size:15px;line-height:1.35}
 .tl span{display:block;font-size:13px;color:var(--ink-2);line-height:1.45}
@@ -366,7 +370,8 @@ body.lock{overflow:hidden}
       carline:"About {h} in the car, all day", base:"Starts and ends in Nanao",
       tag4:"Probably", tag5:"Definitely",
       more:"See the full day →", back:"Back", fly_day:"The day", fly_incl:"Included", fly_know:"Good to know",
-      fly_hours:"About {n} hours", fly_private:"Private: 2–4 people"
+      fly_hours:"About {n} hours", fly_private:"Private: 2–4 people",
+      heart_hint:"Tap the heart on the parts you like.", heart_label:"Like"
     },
     ja: {
       eyebrow_start:"能登半島", h_start:"あなたに合う<br>能登の一日は？",
@@ -407,7 +412,8 @@ body.lock{overflow:hidden}
       carline:"車で約{h}（1日の合計）", base:"七尾発・七尾着",
       tag4:"たぶんする", tag5:"ぜひしたい",
       more:"この一日の詳細を見る →", back:"戻る", fly_day:"一日の流れ", fly_incl:"含まれるもの", fly_know:"知っておいてほしいこと",
-      fly_hours:"約{n}時間", fly_private:"貸切：2〜4名"
+      fly_hours:"約{n}時間", fly_private:"貸切：2〜4名",
+      heart_hint:"気になる所にハートを付けてください。", heart_label:"いいね"
     }
   };
 
@@ -510,6 +516,17 @@ body.lock{overflow:hidden}
      en:{title:"Sake and Sushi of Oku-Noto", stops:["A sake brewery in brewing season","Sushi lunch in a fishing port","Walk the port town","Dinner at a master's counter the locals love"]},
      ja:{title:"奥能登の酒と寿司", stops:["仕込みの季節の酒蔵へ","漁港の町で寿司の昼食","港町を歩く","地元の人が通う名店のカウンターで夕食"]}}
   ];
+  var SPOTS = {
+    "heal-near":["zazen-temple","lunch-nanao","tea-host","sea-silence",null],
+    "heal-far":[null,"sojiji-zazen","lunch-anamizu","tea-host","candle-evening",null],
+    "culture-near":["chinkin","lunch-ipponsugi","soy-brewery","candle-maker","candle-evening",null],
+    "culture-far":[null,"sojiji-walk","lunch-coast","wajima-artisan","tea-host",null],
+    "active-near":[null,"sup","lunch-notojima","bridge-walk","onsen-rest","candle-evening",null],
+    "local-near":["tea-host","shopkeeper-walk","lunch-ipponsugi","rebuild-story","dinner-local",null],
+    "food-near":["chopsticks","sushi-lunch","soy-brewery","nigiri-lesson","new-rice","master-dinner",null],
+    "food-far":[null,"sake-brewery","sushi-lunch-port","port-walk","master-dinner",null]
+  };
+  var HEART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-10-9.3C.4 8.6 2.1 5 5.6 5c2 0 3.3 1.1 4.1 2.3h.6C11.1 6.1 12.4 5 14.4 5 17.9 5 19.6 8.6 18 11.7 16.5 14.6 12 21 12 21z" transform="translate(2 0)"/></svg>';
   var BY = {}; CARDS.forEach(function(c){ BY[c.id] = c; });
   var USE_PHOTOS = CARDS.every(function(c){ return !!c.photo; });
   var PAIRS = [
@@ -616,7 +633,7 @@ body.lock{overflow:hidden}
   var S, current = "start", busy = false, topCard = null;
   function fresh(){
     S = {id:uuid(), about:{}, order:shuffle(CARDS.map(function(c){ return c.id; })), idx:0, ratings:[], pairs:{}, farReasons:[],
-         pick:null, why:"", price:null, wordsPlus:[], wordsMinus:[], quake:null, t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0, det:{}};
+         pick:null, why:"", price:null, wordsPlus:[], wordsMinus:[], quake:null, t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0, det:{}, hearts:{}};
     $("why").value = ""; $("memo").value = ""; $("memo-status").textContent = ""; $("org").open = false;
     buildChoice("q-region", REGIONS, function(v){ S.about.region = v; checkAbout(); });
     buildChoice("q-company", COMPANY, function(v){ S.about.company = v; checkAbout(); });
@@ -754,8 +771,8 @@ body.lock{overflow:hidden}
     $("fly-body").innerHTML = '<h2 class="fly-title" id="fly-title">' + esc(x.title) + '</h2>' +
       '<p class="fly-hook">' + esc(F.hook) + '</p>' +
       '<ul class="fly-facts">' + facts.map(function(s){ return '<li>' + esc(s) + '</li>'; }).join("") + '</ul>' +
-      '<p class="fly-h">' + esc(t("fly_day")) + '</p>' +
-      '<ol class="tl">' + F.steps.map(function(s){ return '<li><time>' + esc(s[0]) + '</time><div><b>' + esc(s[1]) + '</b>' + (s[2] ? '<span>' + esc(s[2]) + '</span>' : "") + '</div></li>'; }).join("") + '</ol>' +
+      '<p class="fly-h">' + esc(t("fly_day")) + '</p><p class="fly-hint">' + esc(t("heart_hint")) + '</p>' +
+      '<ol class="tl">' + F.steps.map(function(s, i){ var sp = (SPOTS[id] || [])[i]; var on = sp && S.hearts[id + ':' + sp]; return '<li><time>' + esc(s[0]) + '</time><div><b>' + esc(s[1]) + '</b>' + (s[2] ? '<span>' + esc(s[2]) + '</span>' : "") + '</div>' + (sp ? '<button class="heart" type="button" data-spot="' + sp + '" data-i="' + i + '" aria-pressed="' + (on ? 'true' : 'false') + '" aria-label="' + esc(t("heart_label") + ': ' + s[1]) + '">' + HEART_SVG + '</button>' : '<span></span>') + '</li>'; }).join("") + '</ol>' +
       '<p class="fly-h">' + esc(t("fly_incl")) + '</p>' +
       '<ul class="incl">' + F.incl.map(function(s){ return '<li>' + esc(s) + '</li>'; }).join("") + '</ul>' +
       '<p class="fly-h">' + esc(t("fly_know")) + '</p><p class="fly-know">' + esc(F.know) + '</p>' +
@@ -769,6 +786,12 @@ body.lock{overflow:hidden}
     S.det[sheetId] = (S.det[sheetId] || 0) + (performance.now() - sheetAt);
     sheetId = null; $("sheet").hidden = true; document.body.classList.remove("lock");
   }
+  $("fly-body").addEventListener("click", function(e){
+    var b = e.target.closest(".heart"); if (!b || !sheetId) return;
+    var sp = b.getAttribute("data-spot"), key = sheetId + ":" + sp, i = Number(b.getAttribute("data-i"));
+    if (S.hearts[key]) { delete S.hearts[key]; b.setAttribute("aria-pressed", "false"); }
+    else { var f = FLY[sheetId]; S.hearts[key] = {c:sheetId, s:sp, lj:(f.ja.steps[i] || ["",""])[1]}; b.setAttribute("aria-pressed", "true"); }
+  });
   $("b-sheet-close").addEventListener("click", closeSheet);
   $("sheet").addEventListener("click", function(e){ if (e.target === $("sheet")) closeSheet(); });
 
@@ -836,11 +859,12 @@ body.lock{overflow:hidden}
     $("r-save").textContent = t("saving");
     show("result");
     var payload = {
-      v:5, id:S.id, createdAt:new Date().toISOString(), src:SRC, ui:LANG,
+      v:6, id:S.id, createdAt:new Date().toISOString(), src:SRC, ui:LANG,
       lang:(navigator.language || "").slice(0, 20), mobile:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
       about:{region:S.about.region || "", company:S.about.company || "", maxSpend:S.about.maxSpend || ""},
       order:S.order, ratings:S.ratings, pairs:S.pairs, farReasons:S.farReasons, pick:S.pick, why:(S.why || "").slice(0, 200), price:S.price || "",
-      wordsPlus:S.wordsPlus, wordsMinus:S.wordsMinus, quake:S.quake || "", type:r.type, roadTrip:r.road, durationMs:Date.now() - S.t0, steps:S.steps
+      wordsPlus:S.wordsPlus, wordsMinus:S.wordsMinus, quake:S.quake || "", type:r.type, roadTrip:r.road, durationMs:Date.now() - S.t0, steps:S.steps,
+      hearts:Object.keys(S.hearts).map(function(k){ return S.hearts[k]; })
     };
     window.__ndmLast = payload;
     var status = await save(payload);
