@@ -171,6 +171,30 @@ body.lock{overflow:hidden}
 .sheet-foot{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px}
 .sheet-foot .ask{font-size:14px}
 .start-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.type-hero{display:flex;align-items:center;gap:16px}
+.type-hero .result-kanji{font-size:84px}
+.type-road{margin:6px 0 0;font-size:14px;color:var(--ink-2)}
+.traits{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.traits li{position:relative;padding-left:24px;font-size:15px;line-height:1.45}
+.traits li::before{content:"\2713";position:absolute;left:2px;top:0;color:var(--urushi);font-weight:700}
+.rh{font-family:var(--display);font-weight:700;font-size:20px;line-height:1.25;margin:10px 0 0;text-wrap:balance}
+.matches{display:flex;flex-direction:column;gap:10px}
+.match{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px}
+.match img{width:72px;height:72px;object-fit:cover;border-radius:8px;display:block}
+.match .mk{width:72px;height:72px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:34px;background:var(--paper);border-radius:8px}
+.m-rank{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.m-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.m-top b{font-size:15px;line-height:1.3}
+.m-pct{font-family:var(--display);font-weight:800;color:var(--urushi);font-size:20px;white-space:nowrap}
+.m-pct small{font-family:var(--body);font-size:11px;font-weight:700;color:var(--ink-3);margin-left:3px}
+.m-why{font-size:12.5px;color:var(--ink-2);margin-top:4px;line-height:1.45}
+.cday{list-style:none;margin:0;display:flex;flex-direction:column;gap:12px;border-left:2px solid var(--line);padding:0 0 0 14px}
+.cday li{display:flex;flex-direction:column;gap:1px}
+.cday .when{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--urushi)}
+.cday b{font-size:15px;line-height:1.35}
+.cday .from{font-size:12px;color:var(--ink-3)}
+.share-img{width:100%;border-radius:12px;border:1px solid var(--line);display:block}
+a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
 .lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface);flex:none}
 .lang button{appearance:none;border:0;background:none;color:var(--ink-2);font:inherit;font-size:12px;font-weight:700;padding:6px 12px;cursor:pointer;min-height:32px}
 .lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
@@ -282,11 +306,21 @@ body.lock{overflow:hidden}
 
   <section class="screen" id="s-result" hidden>
     <p class="eyebrow" data-t="eyebrow_result"></p>
-    <p class="result-kanji" id="r-kanji" aria-hidden="true"></p>
-    <h1 class="h-display" id="r-type"></h1>
+    <div class="type-hero">
+      <p class="result-kanji" id="r-kanji" aria-hidden="true"></p>
+      <div>
+        <h1 class="h-display" id="r-type"></h1>
+        <p class="type-road" id="r-dist"></p>
+      </div>
+    </div>
     <p class="lead" id="r-desc"></p>
-    <p class="dist" id="r-dist" hidden></p>
-    <div class="picked" id="r-pick"></div>
+    <ul class="traits" id="r-traits"></ul>
+    <h2 class="rh" data-t="r_matches"></h2>
+    <div class="matches" id="r-matches"></div>
+    <h2 class="rh" data-t="r_custom"></h2>
+    <p class="sub" id="r-custom-sub"></p>
+    <ol class="cday" id="r-custom"></ol>
+    <button class="btn" id="b-share" type="button" data-t="share_btn"></button>
     <p class="save" id="r-save" role="status"></p>
     <details class="org" id="org">
       <summary data-t="org_summary"></summary>
@@ -322,6 +356,18 @@ body.lock{overflow:hidden}
   </div>
 </div>
 
+<div class="sheet" id="share-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="share-title">
+  <div class="sheet-panel">
+    <div class="sheet-body">
+      <p class="fly-title" id="share-title" data-t="share_title"></p>
+      <p class="sub" data-t="share_hint"></p>
+      <img id="share-img" class="share-img" alt="">
+      <a class="btn primary" id="share-dl" download="my-noto-match.png" data-t="share_dl"></a>
+      <button class="btn" id="b-share-close" type="button" data-t="back"></button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -332,8 +378,8 @@ body.lock{overflow:hidden}
   // ---------- words on the screen (English / 日本語) ----------
   var T = {
     en: {
-      eyebrow_start:"Noto Peninsula, Japan", h_start:"Which Noto day is yours?",
-      lead_start:"Eight ideas for a private day in Noto. Tell us which ones you'd book, then see your travel type.",
+      eyebrow_start:"Noto Peninsula, Japan", h_start:"Find your Noto match",
+      lead_start:"Rate eight private day trips in Noto. We'll match you with your travel type and the day that fits you best.",
       f1:"About 4 minutes", f2:"Anonymous", f3:"No sign-up",
       note_start:"These are early ideas, and some aren't bookable yet. Your answers help us decide what to build.",
       start:"Start", next:"Next",
@@ -371,11 +417,18 @@ body.lock{overflow:hidden}
       tag4:"Probably", tag5:"Definitely",
       more:"See the full day →", back:"Back", fly_day:"The day", fly_incl:"Included", fly_know:"Good to know",
       fly_hours:"About {n} hours", fly_private:"Private: 2–4 people",
-      heart_hint:"Tap the heart on the parts you like.", heart_label:"Like"
+      heart_hint:"Tap the heart on the parts you like.", heart_label:"Like",
+      r_matches:"Your top 3 Noto matches", r_custom:"Your perfect Noto day",
+      custom_sub_h:"Built from the parts you hearted.", custom_sub_m:"Built from your best match. Heart spots in the flyers to make it more yours.",
+      when_morning:"Morning", when_midday:"Midday", when_afternoon:"Afternoon", when_evening:"Evening", from:"From",
+      match:"match", rank1:"Best match", rank2:"2nd match", rank3:"3rd match",
+      why_pick:"Your one pick", why_rating:"You said \u201C{r}\u201D", why_hearts:"You hearted: {s}", why_near:"Stays close, the way you like", why_far:"Worth the drive for you",
+      share_btn:"Save & share my result", share_title:"Your result card", share_hint:"Long-press the image to save it, or use the button below.", share_dl:"Download image",
+      share_text:"My Noto travel type: {t}. Find yours:", card_label:"My Noto travel type", card_best:"My best match", card_cta:"Find your Noto match"
     },
     ja: {
-      eyebrow_start:"能登半島", h_start:"あなたに合う<br>能登の一日は？",
-      lead_start:"能登で過ごす貸切の一日を8つ用意しました。予約したいかどうかを選ぶと、あなたの旅のタイプが分かります。",
+      eyebrow_start:"能登半島", h_start:"あなたにぴったりの<br>能登の一日診断",
+      lead_start:"能登で過ごす貸切の一日を8つ評価すると、あなたの旅のタイプと、ぴったりの一日が分かります。",
       f1:"約4分", f2:"匿名", f3:"登録不要",
       note_start:"まだ案の段階で、予約できないものもあります。回答は、どの案をつくるかを決めるのに使います。",
       start:"はじめる", next:"次へ",
@@ -413,7 +466,14 @@ body.lock{overflow:hidden}
       tag4:"たぶんする", tag5:"ぜひしたい",
       more:"この一日の詳細を見る →", back:"戻る", fly_day:"一日の流れ", fly_incl:"含まれるもの", fly_know:"知っておいてほしいこと",
       fly_hours:"約{n}時間", fly_private:"貸切：2〜4名",
-      heart_hint:"気になる所にハートを付けてください。", heart_label:"いいね"
+      heart_hint:"気になる所にハートを付けてください。", heart_label:"いいね",
+      r_matches:"あなたに合う能登の一日 トップ3", r_custom:"あなただけの能登の一日",
+      custom_sub_h:"ハートを付けたスポットで組みました。", custom_sub_m:"いちばん合う一日から組みました。チラシでハートを付けると、もっとあなた好みになります。",
+      when_morning:"朝", when_midday:"昼", when_afternoon:"午後", when_evening:"夜", from:"元のツアー",
+      match:"マッチ", rank1:"いちばん合う", rank2:"2番目", rank3:"3番目",
+      why_pick:"あなたが選んだ一日", why_rating:"あなたの答え「{r}」", why_hearts:"ハートを付けた：{s}", why_near:"移動が少なく、近場派のあなた向き", why_far:"遠出OKのあなた向き",
+      share_btn:"結果を画像で保存・シェア", share_title:"結果カード", share_hint:"画像を長押しして保存するか、下のボタンから保存してください。", share_dl:"画像を保存",
+      share_text:"私の能登の旅タイプは「{t}」。あなたも診断：", card_label:"私の能登の旅タイプ", card_best:"いちばん合う一日", card_cta:"あなたにぴったりの能登の一日診断"
     }
   };
 
@@ -535,13 +595,35 @@ body.lock{overflow:hidden}
     {theme:"food", near:"food-near", far:"food-far"}
   ];
 
+  // Travel types: the result is decided by the one day people pick. profile + traits make the result feel like theirs.
   var TYPES = {
-    heal:{k:"静", en:{name:"Quiet Seeker", desc:"You travel to slow down. Space, stillness, and time with nothing scheduled."}, ja:{name:"静けさを求める人", desc:"旅は、ゆっくりするためのもの。静けさと、予定のない時間を大事にする人。"}},
-    culture:{k:"漆", en:{name:"Culture Diver", desc:"You want to see how things are made, and meet the hands that make them."}, ja:{name:"文化に飛び込む人", desc:"ものがどう作られるかを見て、作る人に会いたい人。"}},
-    active:{k:"海", en:{name:"Active Explorer", desc:"You would rather move through a place than look at it."}, ja:{name:"体で旅する人", desc:"眺めるより、体を動かしてその土地を味わいたい人。"}},
-    local:{k:"縁", en:{name:"Local Connector", desc:"For you, the best part of a trip is the people you meet."}, ja:{name:"人に会いに行く人", desc:"旅でいちばん大事なのは、出会う人。"}},
-    food:{k:"鮨", en:{name:"Food Pilgrim", desc:"You would cross a peninsula for the right meal."}, ja:{name:"食を求めて旅する人", desc:"おいしい一皿のためなら、半島の先まで行く人。"}}
+    heal:{k:"静",
+      en:{name:"Quiet Seeker", profile:"You travel to slow down. The moments you remember are the quiet ones: an early morning, an empty temple, a cup of tea with nowhere to be.",
+        traits:["You would rather do one thing deeply than five things fast.","Silence doesn't bore you. It recharges you.","You remember how a place felt more than what you saw."]},
+      ja:{name:"静けさを求める人", profile:"旅は、ゆっくりするためのもの。記憶に残るのは、静かな瞬間です。朝早く、人のいないお寺、予定のないまま飲むお茶。",
+        traits:["5つを急いで回るより、1つを深く味わいたい。","静けさは退屈ではなく、充電の時間。","見たものより、その場の空気を覚えている。"]}},
+    culture:{k:"漆",
+      en:{name:"Culture Diver", profile:"You want to know how things are made and who makes them. A workshop visit beats a museum every time, and you come home with one good thing instead of ten souvenirs.",
+        traits:["You ask the maker questions.","Old streets pull you in.","You would pay more for the real thing."]},
+      ja:{name:"文化に飛び込む人", profile:"ものがどう作られ、誰が作っているのかを知りたい人。博物館より工房が好きで、お土産は10個より、本物を1つ。",
+        traits:["作り手に質問したくなる。","古い町並みに引き寄せられる。","本物になら、お金をかけていい。"]}},
+    active:{k:"海",
+      en:{name:"Active Explorer", profile:"You would rather move through a place than look at it. Water, wind and a long walk make your day, and lunch tastes better when you earned it.",
+        traits:["Your shoes go in the bag before anything else.","A view is better when you got there yourself.","You like a plan with room to move."]},
+      ja:{name:"体で旅する人", profile:"眺めるより、体を動かしてその土地を味わいたい人。水と風と長い散歩で一日が満たされ、動いたあとの昼ごはんが一番おいしい。",
+        traits:["旅の荷物は、まず歩きやすい靴から。","自分の足でたどり着いた景色が好き。","予定には、体を動かす余白がほしい。"]}},
+    local:{k:"縁",
+      en:{name:"Local Connector", profile:"For you, the best part of a trip is the people. You want the story behind the shop, a real conversation, and a place you could come back to.",
+        traits:["You talk to shop owners.","You would skip a sight for a good conversation.","You want to leave something good behind, not just take photos."]},
+      ja:{name:"人に会いに行く人", profile:"旅でいちばん大事なのは、出会う人。店の裏にある物語や、ちゃんとした会話、また帰ってきたくなる場所がほしい人。",
+        traits:["店の人と話し込む。","名所より、いい会話を選ぶ。","写真を撮るだけでなく、何かを残して帰りたい。"]}},
+    food:{k:"鮨",
+      en:{name:"Food Pilgrim", profile:"You plan trips around meals and would cross a peninsula for the right one. You want to meet the chef, know where the fish came from, and eat where the locals eat.",
+        traits:["You look up the restaurant before the hotel.","You want to meet the person who made it.","The best meal of the trip is often the least fancy one."]},
+      ja:{name:"食を求めて旅する人", profile:"食事を軸に旅を組み、ぴったりの一皿のためなら半島の先まで行く人。料理人に会い、魚がどこから来たかを知り、地元の人が通う店で食べたい。",
+        traits:["宿より先に、店を調べる。","作った人に会いたい。","旅でいちばんの食事は、案外かざらない店だったりする。"]}}
   };
+  var RL = {en:["Not sure","Definitely not","Probably not","Maybe","Probably","Definitely"], ja:["分からない","絶対しない","たぶんしない","どちらとも","たぶんする","ぜひしたい"]};
   var STEPS = ["about","cards","pairs","reason","pick","price","wplus","wminus","quake"];
 
   // Choices: v is what gets saved (the same in both languages), en / ja are what people see.
@@ -849,17 +931,122 @@ body.lock{overflow:hidden}
     var farCount = PAIRS.filter(function(p){ return S.pairs[p.theme] === "far"; }).length;
     return {type:type, road:farCount >= 2, farCount:farCount};
   }
+  function toMin(hm){ var p = String(hm).split(":"); return Number(p[0]) * 60 + Number(p[1] || 0); }
+  function whenKey(hm){ var m = toMin(hm); return m < 690 ? "when_morning" : (m < 840 ? "when_midday" : (m < 1050 ? "when_afternoon" : "when_evening")); }
+  function spotTitle(c, sp){ var i = (SPOTS[c] || []).indexOf(sp), f = FLY[c]; return i < 0 ? "" : (f[LANG] || f.en).steps[i][1]; }
+  function heartsOf(id){ return Object.keys(S.hearts).filter(function(k){ return k.indexOf(id + ":") === 0; }).map(function(k){ return S.hearts[k]; }); }
+  // Match score (for fun, from the person's own answers): rating 1..5 -> 30..90, "not sure" 35; +4 per heart (up to 2); +5 for the one pick; +2 when the distance fits.
+  function computeMatches(road){
+    var pref = road ? "far" : "near";
+    var list = S.ratings.map(function(s){
+      var hs = heartsOf(s.id), base = s.r === 0 ? 35 : 30 + (s.r - 1) * 15;
+      var score = base + Math.min(hs.length, 2) * 4 + (S.pick === s.id ? 5 : 0) + (BY[s.id].dist === pref ? 2 : 0);
+      return {id:s.id, r:s.r, hearts:hs, score:Math.min(99, score)};
+    });
+    list.sort(function(a, b){ return b.score - a.score || b.r - a.r || b.hearts.length - a.hearts.length; });
+    return list.slice(0, 3);
+  }
+  function whyFor(m, road){
+    var out = [];
+    if (S.pick === m.id) out.push(t("why_pick"));
+    if (m.hearts.length) out.push(t("why_hearts").replace("{s}", m.hearts.slice(0, 2).map(function(h){ return spotTitle(h.c, h.s); }).join(", ")));
+    if (m.r > 0) out.push(t("why_rating").replace("{r}", RL[LANG][m.r] || RL.en[m.r]));
+    var d = BY[m.id].dist;
+    if (d === "far" && road) out.push(t("why_far"));
+    if (d === "near" && !road) out.push(t("why_near"));
+    return out.slice(0, 2);
+  }
+  // A custom day from the hearted spots (same spot counted once), topped up from the best match, ordered morning to evening.
+  function customDay(topId){
+    var items = [], seen = {};
+    Object.keys(S.hearts).forEach(function(k){
+      var h = S.hearts[k], i = (SPOTS[h.c] || []).indexOf(h.s);
+      if (i < 0 || seen[h.s]) return; seen[h.s] = 1;
+      var st = (FLY[h.c][LANG] || FLY[h.c].en).steps[i];
+      items.push({time:st[0], title:st[1], c:h.c});
+    });
+    var fromHearts = items.length > 0;
+    if (items.length < 3 && topId) {
+      (SPOTS[topId] || []).forEach(function(sp, i){
+        if (!sp || seen[sp] || items.length >= 4) return; seen[sp] = 1;
+        var st = (FLY[topId][LANG] || FLY[topId].en).steps[i];
+        items.push({time:st[0], title:st[1], c:topId});
+      });
+    }
+    items.sort(function(a, b){ return toMin(a.time) - toMin(b.time); });
+    return {items:items.slice(0, 6), fromHearts:fromHearts};
+  }
+  function renderResult(r){
+    var TY = TYPES[r.type], tt = TY[LANG] || TY.en;
+    $("r-kanji").textContent = TY.k; $("r-type").textContent = tt.name; $("r-desc").textContent = tt.profile;
+    $("r-traits").innerHTML = tt.traits.map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("");
+    $("r-dist").textContent = t(r.road ? "road_yes" : "road_no");
+    var ms = computeMatches(r.road); window.__ndmMatches = ms;
+    $("r-matches").innerHTML = ms.map(function(m, i){
+      var c = BY[m.id];
+      return '<div class="match">' + (USE_PHOTOS ? imgTag(c) : '<span class="mk" aria-hidden="true">' + c.k + '</span>') +
+        '<div><div class="m-rank">' + esc(t("rank" + (i + 1))) + '</div>' +
+        '<div class="m-top"><b>' + esc(tx(c).title) + '</b><span class="m-pct">' + m.score + '%<small>' + esc(t("match")) + '</small></span></div>' +
+        '<div class="m-why">' + esc(whyFor(m, r.road).join(" \u00B7 ")) + '</div></div></div>';
+    }).join("");
+    var cd = customDay(ms[0] && ms[0].id);
+    $("r-custom-sub").textContent = t(cd.fromHearts ? "custom_sub_h" : "custom_sub_m");
+    $("r-custom").innerHTML = cd.items.map(function(it){
+      return '<li><span class="when">' + esc(t(whenKey(it.time))) + '</span><b>' + esc(it.title) + '</b><span class="from">' + esc(t("from") + ": " + tx(BY[it.c]).title) + '</span></li>';
+    }).join("");
+  }
+
+  // ---------- share card ----------
+  function shareUrl(){ return location.origin + location.pathname + (LANG === "ja" ? "?lang=ja" : "") + "#share"; }
+  function wrapText(g, text, x, y, maxW, lh, maxLines){
+    var tokens = /\s/.test(text) ? text.split(/(\s+)/) : Array.from(text), line = "", lines = [];
+    tokens.forEach(function(tok){ var test = line + tok; if (g.measureText(test).width > maxW && line.trim()) { lines.push(line.trim()); line = tok.trim() ? tok : ""; } else line = test; });
+    if (line.trim()) lines.push(line.trim());
+    lines.slice(0, maxLines || 9).forEach(function(l, i){ g.fillText(l, x, y + i * lh); });
+    return Math.min(lines.length, maxLines || 9);
+  }
+  async function shareResult(){
+    var r = computeType(), TY = TYPES[r.type], tt = TY[LANG] || TY.en, best = (window.__ndmMatches || [])[0];
+    try { await Promise.all([document.fonts.load('800 300px "Shippori Mincho"'), document.fonts.load('700 40px "Shippori Mincho"'), document.fonts.load('700 34px "Zen Kaku Gothic New"')]); } catch (e) {}
+    var cv = document.createElement("canvas"); cv.width = 1080; cv.height = 1350;
+    var g = cv.getContext("2d"), M = '"Shippori Mincho", "Yu Mincho", serif', G = '"Zen Kaku Gothic New", "Hiragino Sans", sans-serif';
+    g.fillStyle = "#F5F7F5"; g.fillRect(0, 0, 1080, 1350);
+    g.fillStyle = "#1B1F22"; g.fillRect(0, 0, 1080, 14);
+    g.fillStyle = "#768287"; g.font = "700 30px " + G; g.fillText(LANG === "ja" ? "能登半島" : "NOTO PENINSULA, JAPAN", 90, 120);
+    g.fillStyle = "#1B1F22"; g.font = "800 300px " + M; g.fillText(TY.k, 70, 450);
+    g.fillStyle = "#A8322D"; g.font = "700 36px " + G; g.fillText(t("card_label"), 90, 560);
+    g.fillStyle = "#1B1F22"; g.font = "700 84px " + M; var nl = wrapText(g, tt.name, 90, 660, 900, 96, 2);
+    var y = 660 + nl * 96 + 10;
+    g.fillStyle = "#465055"; g.font = "500 34px " + G;
+    tt.traits.slice(0, 2).forEach(function(tr){ y += wrapText(g, "\u2713 " + tr, 90, y, 900, 46, 2) * 46 + 8; });
+    if (best) {
+      y += 40; g.fillStyle = "#768287"; g.font = "700 30px " + G; g.fillText(t("card_best"), 90, y);
+      g.fillStyle = "#1B1F22"; g.font = "700 50px " + M; y += 64; var bl = wrapText(g, tx(BY[best.id]).title, 90, y, 760, 60, 2);
+      g.fillStyle = "#A8322D"; g.font = "800 56px " + M; g.fillText(best.score + "%", 880, y);
+    }
+    g.fillStyle = "#1F5C63"; g.font = "700 32px " + G; g.fillText(t("card_cta"), 90, 1230);
+    g.fillStyle = "#1B1F22"; g.font = "500 28px " + G; g.fillText(location.host + location.pathname, 90, 1278);
+    var blob = await new Promise(function(res){ cv.toBlob(res, "image/png"); });
+    post({kind:"share", id:S.id}).catch(function(){});
+    var text = t("share_text").replace("{t}", tt.name) + " " + shareUrl();
+    try {
+      var file = new File([blob], "my-noto-match.png", {type:"image/png"});
+      if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], text:text}); return; }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    var du = cv.toDataURL("image/png");
+    $("share-img").src = du; $("share-dl").href = du;
+    $("share-sheet").hidden = false; document.body.classList.add("lock");
+  }
+  $("b-share-close").addEventListener("click", function(){ $("share-sheet").hidden = true; document.body.classList.remove("lock"); });
+
   async function finish(){
     closeStep();
-    var r = computeType(), TY = TYPES[r.type], tt = TY[LANG] || TY.en;
-    $("r-kanji").textContent = TY.k; $("r-type").textContent = tt.name; $("r-desc").textContent = tt.desc;
-    var dist = $("r-dist"); dist.hidden = false;
-    dist.textContent = t(r.road ? "road_yes" : "road_no");
-    $("r-pick").innerHTML = '<span class="k" aria-hidden="true">' + BY[S.pick].k + '</span><div><div class="note">' + esc(t("your_day")) + '</div><div class="t">' + esc(tx(BY[S.pick]).title) + '</div></div>';
+    var r = computeType();
+    renderResult(r);
     $("r-save").textContent = t("saving");
     show("result");
     var payload = {
-      v:6, id:S.id, createdAt:new Date().toISOString(), src:SRC, ui:LANG,
+      v:7, id:S.id, createdAt:new Date().toISOString(), src:SRC, ui:LANG,
       lang:(navigator.language || "").slice(0, 20), mobile:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
       about:{region:S.about.region || "", company:S.about.company || "", maxSpend:S.about.maxSpend || ""},
       order:S.order, ratings:S.ratings, pairs:S.pairs, farReasons:S.farReasons, pick:S.pick, why:(S.why || "").slice(0, 200), price:S.price || "",
@@ -890,6 +1077,7 @@ body.lock{overflow:hidden}
   $("b-wminus-next").addEventListener("click", function(){ show("quake"); });
   $("b-quake-next").addEventListener("click", function(){ finish(); });
   $("b-memo").addEventListener("click", saveMemo);
+  $("b-share").addEventListener("click", function(){ shareResult(); });
   $("b-again").addEventListener("click", function(){ fresh(); show("start"); });
 
   applyLang();

@@ -44,6 +44,7 @@ function headers_() {
   h.push("ui_lang"); // v4で追加（末尾に足す＝既存の列の位置は変えない）
   CARDS.forEach(function (c) { h.push(c.id + "_detail_sec"); }); // v5で追加：そのカードのチラシを開いていた秒（0＝開かなかった）
   h.push("hearts"); // v6で追加：チラシでハートを付けたスポット（|カード:スポット|）。1件ずつの記録は「hearts」シート
+  h.push("shared"); // v7で追加：結果カードの保存・シェアを押したら yes
   return h;
 }
 
@@ -55,6 +56,15 @@ function doPost(e) {
     var body = e && e.postData ? e.postData.contents : "";
     if (!body || body.length > 30000) return out_({ok: false, error: "bad_size"});
     var p = JSON.parse(body);
+    if (p && p.kind === "share") {
+      if (!UUID_RE.test(String(p.id || ""))) return out_({ok: false, error: "bad_id"});
+      lock.waitLock(20000); locked = true;
+      var shs = sheet_();
+      var rs = findRow_(shs, p.id);
+      if (!rs) return out_({ok: false, error: "not_found"});
+      shs.getRange(rs, headers_().indexOf("shared") + 1).setValue("yes");
+      return out_({ok: true, row: rs, shared: true});
+    }
     if (p && p.kind === "memo") {
       if (!UUID_RE.test(String(p.id || ""))) return out_({ok: false, error: "bad_id"});
       if (typeof p.memo !== "string" || !p.memo.trim() || p.memo.length > 500) return out_({ok: false, error: "bad_memo"});
@@ -88,7 +98,7 @@ function doPost(e) {
 function doGet(e) {
   var id = e && e.parameter ? String(e.parameter.id || "") : "";
   var sh = sheet_();
-  if (!id) return out_({ok: true, service: "noto-day-match", version: 6, rows: Math.max(0, sh.getLastRow() - 1)});
+  if (!id) return out_({ok: true, service: "noto-day-match", version: 7, rows: Math.max(0, sh.getLastRow() - 1)});
   if (!UUID_RE.test(id)) return out_({ok: false, error: "bad_id"});
   var r = findRow_(sh, id);
   if (!r) return out_({ok: true, found: false});
@@ -170,6 +180,7 @@ function toRow_(p) {
   row.push(p.ui === "ja" ? "ja" : "en");
   CARDS.forEach(function (c) { var s = by[c.id]; row.push(s ? sec_(s.det || 0) : ""); });
   row.push(bar_((p.hearts || []).map(function (x) { return x.c + ":" + x.s; })));
+  row.push("");
   return row;
 }
 
