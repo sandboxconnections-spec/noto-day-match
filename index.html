@@ -298,7 +298,7 @@ details.org[open] summary{margin-bottom:10px}
      stops:["Private stand-up paddleboarding on Nanao Bay","Lunch on Noto Island","Walk across the 1 km Notojima Bridge","An evening by candlelight"]},
     {id:"local-near", theme:"local", dist:"near", k:"縁", photo:"img/local-near.jpg", title:"Stories of Ipponsugi",
      stops:["Tea at a local host's home","Walk a 600-year-old merchant street with its shopkeepers","Hear how they are rebuilding after the 2024 earthquake","Dinner at a neighborhood restaurant"]},
-    {id:"food-near", theme:"food", dist:"near", k:"鮨", photo:"img/food-near.jpg", title:"Sushi, Three Ways",
+    {id:"food-near", theme:"food", dist:"near", k:"鮨", photo:"img/food-near.jpg", pos:"50% 18%", title:"Sushi, Three Ways",
      stops:["Carve your own lacquer chopsticks","Lunch at a local sushi counter","Make nigiri with a chef in a private session","Dinner at a master's counter the locals love"],
      extra:"Also: a 100-year-old soy sauce brewery and this year's new rice"},
     {id:"food-far", theme:"food", dist:"far", k:"酒", photo:"img/food-far.jpg", title:"Sake and Sushi of Oku-Noto",
@@ -455,7 +455,7 @@ details.org[open] summary{margin-bottom:10px}
     var drive = '<div class="drive"><span class="drive-a">About</span><span class="drive-n">' + hrs(c) + '</span><span class="drive-l">in the car, all day</span></div>';
     var credit = c.credit ? '<a class="credit" href="' + esc(c.credit.url) + '" target="_blank" rel="noopener">Photo: ' + esc(c.credit.text) + '</a>' : '';
     var hero = USE_PHOTOS
-      ? '<div class="card-photo"><img src="' + esc(c.photo) + '" alt=""><span class="kchip" aria-hidden="true">' + c.k + '</span>' + drive + credit + '</div>'
+      ? '<div class="card-photo"><img src="' + esc(c.photo) + '" alt=""' + (c.pos ? ' style="object-position:' + esc(c.pos) + '"' : '') + '><span class="kchip" aria-hidden="true">' + c.k + '</span>' + drive + credit + '</div>'
       : '<div class="card-hero"><span class="kanji" aria-hidden="true">' + c.k + '</span>' + drive + '</div>';
     a.innerHTML = hero +
       '<div class="card-body"><h3 class="card-title">' + esc(c.title) + '</h3><ol class="stops">' + stops + '</ol>' +
@@ -513,7 +513,7 @@ details.org[open] summary{margin-bottom:10px}
         var c = BY[p[side]];
         var b = document.createElement("button");
         b.type = "button"; b.className = "opt"; b.setAttribute("aria-pressed", S.pairs[p.theme] === side ? "true" : "false");
-        b.innerHTML = (USE_PHOTOS ? '<img src="' + esc(c.photo) + '" alt="">' : '<span class="k" aria-hidden="true">' + c.k + '</span>') +
+        b.innerHTML = (USE_PHOTOS ? '<img src="' + esc(c.photo) + '" alt=""' + (c.pos ? ' style="object-position:' + esc(c.pos) + '"' : '') + '>' : '<span class="k" aria-hidden="true">' + c.k + '</span>') +
           '<span class="t">' + esc(c.title) + '</span><span class="s">' + esc(carLine(c)) + '</span>';
         b.addEventListener("click", function(){
           opts.querySelectorAll(".opt").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
