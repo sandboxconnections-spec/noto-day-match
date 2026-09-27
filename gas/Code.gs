@@ -30,6 +30,7 @@ var WORDS = ["Unhurried", "Ma (the space between)", "Zen", "Decide nothing", "Hi
 var QUAKE = ["No", "A little", "Yes, a lot", "I didn't know about it"];
 var TYPES = {heal:"Quiet Seeker", culture:"Culture Diver", active:"Active Explorer", local:"Local Connector", food:"Food Pilgrim"};
 var TYPE_JA = {heal:"癒し", culture:"カルチャー", active:"アクティビティ", local:"地元の人", food:"食"};
+var SUMMARY_VER = "v5"; // 集計シートの版。変えると次の呼び出しで集計シートを作り直す（回答の行は動かさない）
 var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 function headers_() {
@@ -41,6 +42,7 @@ function headers_() {
   STEPS.forEach(function (s) { h.push("step_" + s + "_sec"); });
   h.push("memo", "raw_json");
   h.push("ui_lang"); // v4で追加（末尾に足す＝既存の列の位置は変えない）
+  CARDS.forEach(function (c) { h.push(c.id + "_detail_sec"); }); // v5で追加：そのカードのチラシを開いていた秒（0＝開かなかった）
   return h;
 }
 
@@ -81,7 +83,7 @@ function doPost(e) {
 function doGet(e) {
   var id = e && e.parameter ? String(e.parameter.id || "") : "";
   var sh = sheet_();
-  if (!id) return out_({ok: true, service: "noto-day-match", version: 4, rows: Math.max(0, sh.getLastRow() - 1)});
+  if (!id) return out_({ok: true, service: "noto-day-match", version: 5, rows: Math.max(0, sh.getLastRow() - 1)});
   if (!UUID_RE.test(id)) return out_({ok: false, error: "bad_id"});
   var r = findRow_(sh, id);
   if (!r) return out_({ok: true, found: false});
@@ -112,6 +114,7 @@ function check_(p) {
     if (!s || ids.indexOf(s.id) < 0) return "bad_rating_id";
     if ([0, 1, 2, 3, 4, 5].indexOf(s.r) < 0) return "bad_rating";
     if (typeof s.ms !== "number" || s.ms < 0 || s.ms > 3600000) return "bad_ms";
+    if (s.det !== undefined && (typeof s.det !== "number" || s.det < 0 || s.det > 3600000)) return "bad_det";
   }
   var pairs = p.pairs || {};
   for (var k in pairs) { if (["heal", "culture", "food"].indexOf(k) < 0 || ["near", "far"].indexOf(pairs[k]) < 0) return "bad_pair"; }
@@ -135,7 +138,7 @@ function bar_(arr) { return arr && arr.length ? "|" + arr.join("|") + "|" : ""; 
 
 function toRow_(p) {
   var by = {};
-  (p.ratings || []).forEach(function (s, i) { by[s.id] = {r: s.r, ms: s.ms, pos: s.pos || ((p.order || []).indexOf(s.id) + 1) || (i + 1)}; });
+  (p.ratings || []).forEach(function (s, i) { by[s.id] = {r: s.r, ms: s.ms, det: s.det, pos: s.pos || ((p.order || []).indexOf(s.id) + 1) || (i + 1)}; });
   var pick = CARDS.filter(function (c) { return c.id === p.pick; })[0];
   var a = p.about || {};
   var row = [
@@ -153,6 +156,7 @@ function toRow_(p) {
   STEPS.forEach(function (s) { row.push(p.steps && typeof p.steps[s] === "number" ? sec_(p.steps[s]) : ""); });
   row.push("", safe_(JSON.stringify(p)));
   row.push(p.ui === "ja" ? "ja" : "en");
+  CARDS.forEach(function (c) { var s = by[c.id]; row.push(s ? sec_(s.det || 0) : ""); });
   return row;
 }
 
@@ -204,8 +208,11 @@ function sheet_() {
   // v3までの「集計」は言語を分けていない＝名前を変えて残し、英語と日本語に分けて作り直す
   var legacy = ss.getSheetByName("集計");
   if (legacy) legacy.setName("集計_old_" + tag);
-  if (!ss.getSheetByName("集計（英語）")) buildSummary_(ss, h, "集計（英語）", false);
-  if (!ss.getSheetByName("集計（日本語）")) buildSummary_(ss, h, "集計（日本語）", true);
+  [["集計（英語）", false], ["集計（日本語）", true]].forEach(function (x) {
+    var s = ss.getSheetByName(x[0]);
+    if (s && s.getRange(1, 16).getValue() !== SUMMARY_VER) { s.setName(x[0] + "_old_" + tag); s = null; }
+    if (!s) buildSummary_(ss, h, x[0], x[1]);
+  });
   return sh;
 }
 
@@ -231,17 +238,17 @@ function buildSummary_(ss, h, name, isJa) {
   var LC = "," + L + "," + (isJa ? '"ja"' : '"<>ja"');   // COUNTIFS / AVERAGEIFS に足す条件
   var LF = "," + L + (isJa ? '="ja"' : '<>"ja"');        // FILTER に足す条件
   var NT = T + ',"<>test"' + LC;                          // 「テストを除く・この言語」の共通条件
-  var W = 12;
+  var W = 14;
   function pad(row) { while (row.length < W) row.push(""); return row; }
   var rows = [];
   rows.push(pad(["集計（" + (isJa ? "日本語" : "英語") + "の画面で答えた人・リンク末尾に #test を付けた回答は除く）"]));
   rows.push(pad(["回答数", '=COUNTIFS(' + ID + ',"<>",' + NT + ')']));
   rows.push(pad([]));
-  rows.push(pad(["カード", "中身", "距離", "答えた人", "平均（5点満点）", "予約する（4〜5）", "迷う（3）", "予約しない（1〜2）", "分からない（?）", "迷った秒（中央値）", "「1日だけ」に選んだ人", "表示順の平均"]));
+  rows.push(pad(["カード", "中身", "距離", "答えた人", "平均（5点満点）", "予約する（4〜5）", "迷う（3）", "予約しない（1〜2）", "分からない（?）", "迷った秒（中央値）", "「1日だけ」に選んだ人", "表示順の平均", "チラシを開いた割合", "チラシを見た秒（中央値・開いた人）"]));
   var cardRow = {};
   CARDS.forEach(function (c, i) {
     var r = 5 + i; cardRow[c.id] = r;
-    var C = R(c.id), S = R(c.id + "_sec"), P = R("pick"), O = R(c.id + "_pos");
+    var C = R(c.id), S = R(c.id + "_sec"), P = R("pick"), O = R(c.id + "_pos"), D = R(c.id + "_detail_sec");
     rows.push([
       c.k + " " + c.title, c.theme, c.dist,
       '=COUNTIFS(' + C + ',"<>",' + NT + ')',
@@ -252,7 +259,9 @@ function buildSummary_(ss, h, name, isJa) {
       '=IFERROR(COUNTIFS(' + C + ',"~?",' + NT + ')/$D' + r + ',"")',
       '=IFERROR(MEDIAN(FILTER(' + S + ',' + S + '<>"",' + T + '<>"test"' + LF + ')),"")',
       '=COUNTIFS(' + P + ',"' + c.id + '",' + NT + ')',
-      '=IFERROR(AVERAGEIFS(' + O + ',' + NT + '),"")'
+      '=IFERROR(AVERAGEIFS(' + O + ',' + NT + '),"")',
+      '=IFERROR(COUNTIFS(' + D + ',">0",' + NT + ')/COUNTIFS(' + D + ',"<>",' + NT + '),"")',
+      '=IFERROR(MEDIAN(FILTER(' + D + ',' + D + '>0,' + T + '<>"test"' + LF + ')),"")'
     ]);
   });
   sm.getRange(1, 1, rows.length, W).setValues(rows);
@@ -260,6 +269,9 @@ function buildSummary_(ss, h, name, isJa) {
   sm.getRange(5, 6, CARDS.length, 4).setNumberFormat("0%");
   sm.getRange(5, 10, CARDS.length, 1).setNumberFormat("0.0");
   sm.getRange(5, 12, CARDS.length, 1).setNumberFormat("0.0");
+  sm.getRange(5, 13, CARDS.length, 1).setNumberFormat("0%");
+  sm.getRange(5, 14, CARDS.length, 1).setNumberFormat("0.0");
+  sm.getRange(1, 16).setValue(SUMMARY_VER).setFontColor("#999999");
 
   var r0 = 5 + CARDS.length + 1;
   var block = [["近い版と遠い版", "予約する（近い）", "予約する（遠い）", "差（遠い−近い）", "二択で遠い版を選んだ割合", "二択に答えた人"]];

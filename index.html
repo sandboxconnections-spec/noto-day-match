@@ -142,6 +142,30 @@ details.org summary{cursor:pointer;font-size:13px;color:var(--ink-2)}
 details.org[open] summary{margin-bottom:10px}
 .org-row{display:flex;flex-direction:column;gap:8px}
 @media (prefers-reduced-motion: reduce){.card.fly,.progress i{transition:none}.card.enter{animation:none}}
+.more{appearance:none;align-self:flex-start;border:0;background:none;color:var(--bay);font:inherit;font-size:14px;font-weight:700;padding:4px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.card-body{cursor:pointer}
+body.lock{overflow:hidden}
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(17,20,22,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet-panel{position:relative;background:var(--paper);width:100%;max-width:440px;max-height:94vh;overflow-y:auto;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+.sheet-photo{position:relative;height:190px;background:var(--line)}
+.sheet-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.sheet-photo .kchip{position:absolute;left:12px;top:12px;background:rgba(17,20,22,.72);color:#fff;border-radius:8px;padding:4px 8px;font-family:var(--display);font-weight:800;font-size:22px;line-height:1}
+.sheet-close{position:absolute;right:10px;top:10px;appearance:none;border:0;border-radius:999px;background:rgba(17,20,22,.72);color:#fff;font:inherit;font-size:13px;font-weight:700;padding:7px 12px;cursor:pointer}
+.sheet-body{padding:16px 18px 8px;display:flex;flex-direction:column;gap:14px}
+.fly-title{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.2;margin:0;text-wrap:balance}
+.fly-hook{font-size:15px;color:var(--ink-2);margin:0}
+.fly-facts{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.fly-facts li{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.fly-h{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.tl li{display:grid;grid-template-columns:48px 1fr;gap:10px}
+.tl time{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;color:var(--ink-2)}
+.tl b{display:block;font-size:15px;line-height:1.35}
+.tl span{display:block;font-size:13px;color:var(--ink-2);line-height:1.45}
+.incl{margin:0;padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:3px}
+.fly-know{font-size:13px;color:var(--ink-2);margin:0}
+.sheet-foot{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px}
+.sheet-foot .ask{font-size:14px}
 .start-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface);flex:none}
 .lang button{appearance:none;border:0;background:none;color:var(--ink-2);font:inherit;font-size:12px;font-weight:700;padding:6px 12px;cursor:pointer;min-height:32px}
@@ -276,6 +300,24 @@ details.org[open] summary{margin-bottom:10px}
 
 </div>
 
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="fly-title">
+  <div class="sheet-panel" id="sheet-panel">
+    <div class="sheet-photo" id="fly-photo"></div>
+    <button class="sheet-close" id="b-sheet-close" type="button" data-t="back"></button>
+    <div class="sheet-body" id="fly-body"></div>
+    <div class="sheet-foot">
+      <p class="ask" data-t="ask"></p>
+      <div class="scale">
+        <button class="rate" type="button" data-r="1" style="--c:var(--slate)"><span class="dot"></span><span data-th="r1"></span></button>
+        <button class="rate" type="button" data-r="2" style="--c:color-mix(in srgb,var(--slate) 55%,var(--line))"><span class="dot"></span><span data-th="r2"></span></button>
+        <button class="rate" type="button" data-r="3" style="--c:var(--line)"><span class="dot"></span><span data-th="r3"></span></button>
+        <button class="rate" type="button" data-r="4" style="--c:color-mix(in srgb,var(--urushi) 55%,var(--line))"><span class="dot"></span><span data-th="r4"></span></button>
+        <button class="rate" type="button" data-r="5" style="--c:var(--urushi)"><span class="dot"></span><span data-th="r5"></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -322,7 +364,9 @@ details.org[open] summary{margin-bottom:10px}
       mode_preview:"Preview mode: answers are not saved yet.", mode_test:"Test mode: answers are saved but left out of the summary.",
       count:"{i} of {n}", drive_a:"About", drive_l:"in the car, all day", hrs_near:"1 hr", hrs_far:"3 hrs",
       carline:"About {h} in the car, all day", base:"Starts and ends in Nanao",
-      tag4:"Probably", tag5:"Definitely"
+      tag4:"Probably", tag5:"Definitely",
+      more:"See the full day →", back:"Back", fly_day:"The day", fly_incl:"Included", fly_know:"Good to know",
+      fly_hours:"About {n} hours", fly_private:"Private: 2–4 people"
     },
     ja: {
       eyebrow_start:"能登半島", h_start:"あなたに合う<br>能登の一日は？",
@@ -361,8 +405,71 @@ details.org[open] summary{margin-bottom:10px}
       mode_preview:"お試しモード：回答はまだ保存されません。", mode_test:"テストモード：回答は保存されますが、集計には入りません。",
       count:"{i} / {n}", drive_a:"車で約", drive_l:"1日の合計", hrs_near:"1時間", hrs_far:"3時間",
       carline:"車で約{h}（1日の合計）", base:"七尾発・七尾着",
-      tag4:"たぶんする", tag5:"ぜひしたい"
+      tag4:"たぶんする", tag5:"ぜひしたい",
+      more:"この一日の詳細を見る →", back:"戻る", fly_day:"一日の流れ", fly_incl:"含まれるもの", fly_know:"知っておいてほしいこと",
+      fly_hours:"約{n}時間", fly_private:"貸切：2〜4名"
     }
+  };
+
+  // Flyer for each day (same layout for all eight): hook, timeline [time, what, detail], what's included, hours, one note.
+  // Prices are left out on purpose: people guess the price later.
+  var FLY = {
+    "heal-near":{hours:8,
+      en:{hook:"A day with nothing to rush: sitting, tea, and the sea.",
+        steps:[["9:30","Zazen at a local Zen temple","A monk shows you how to sit, then 30 minutes of quiet."],["12:00","Lunch in Nanao","A seasonal set meal at a local restaurant."],["14:00","Tea in a host's tatami room","A local host serves tea in their home. Stay as long as you like."],["16:30","Five silent minutes by the sea","Watch Nanao Bay as the light changes."],["17:30","Back in Nanao",""]],
+        incl:["Private English-speaking guide","Car and driver","Zazen and tea","Lunch"], know:"You sit on the floor, so wear comfortable clothes."},
+      ja:{hook:"急ぐことが何もない一日。坐禅と、お茶と、海。",
+        steps:[["9:30","地元の禅寺で坐禅","僧侶に坐り方を教わり、30分静かに坐ります。"],["12:00","七尾で昼食","地元の店で、季節の定食。"],["14:00","ホストの家の和室でお茶","地元のホストが自宅でお茶を出します。好きなだけゆっくり。"],["16:30","海の前で5分、黙って過ごす","光が変わっていく七尾湾を眺めます。"],["17:30","七尾に戻って解散",""]],
+        incl:["ガイド（貸切）","車と運転手","坐禅とお茶","昼食"], know:"床に座るので、動きやすい服で。"}},
+    "heal-far":{hours:12,
+      en:{hook:"Sit in a Zen temple with 700 years of history, deep in Oku-Noto.",
+        steps:[["8:30","Leave Nanao","About 1 hr 20 min by car."],["10:00","Zazen at Sojiji Soin","Learn the basics, then sit in the temple grounds. Founded in 1321."],["12:30","Lunch in a small port town","Seafood in Anamizu."],["14:30","Tea in a host's tatami room","A quiet afternoon in a local home."],["18:00","An evening by candlelight","Dinner, then candles on a quiet street in Nanao."],["21:00","Back to your hotel",""]],
+        incl:["Private English-speaking guide","Car and driver","Zazen and tea","Lunch and dinner"], know:"The temple was damaged in the 2024 earthquake. Some areas may be closed for repairs."},
+      ja:{hook:"700年の歴史をもつ禅寺で坐る、奥能登の一日。",
+        steps:[["8:30","七尾を出発","車で約1時間20分。"],["10:00","總持寺祖院で坐禅","作法を教わり、境内で坐ります。1321年開創。"],["12:30","小さな港町で昼食","穴水で海の幸。"],["14:30","ホストの家の和室でお茶","地元の家で、静かな午後。"],["18:00","キャンドルの灯りで過ごす夜","夕食のあと、七尾の静かな通りでキャンドルを。"],["21:00","宿へ",""]],
+        incl:["ガイド（貸切）","車と運転手","坐禅とお茶","昼食と夕食"], know:"2024年の地震で被害を受け、修復中で入れない場所があります。"}},
+    "culture-near":{hours:10,
+      en:{hook:"Meet the makers on a merchant street with 600 years of history.",
+        steps:[["10:00","Chinkin with a local master","Carve a design into lacquer and fill it with gold."],["12:00","Lunch on Ipponsugi Street",""],["13:30","A 100-year-old soy sauce brewery","Press soy sauce by hand and taste it."],["15:00","A traditional Japanese candle maker","Choose a candle for tonight."],["18:00","An evening by candlelight","Dinner, then your candle lit on the old street."],["20:00","Back to your hotel",""]],
+        incl:["Private English-speaking guide","Car and driver","Chinkin workshop, brewery visit, candle","Lunch and dinner"], know:"Most of the day is on foot along one street."},
+      ja:{hook:"600年続く商店街で、つくり手に会う一日。",
+        steps:[["10:00","地元の職人と沈金体験","漆に模様を彫り、金を埋めます。"],["12:00","一本杉通りで昼食",""],["13:30","創業100年の醤油蔵","醤油を手で絞って、味見します。"],["15:00","和ろうそくの店","今夜灯すろうそくを選びます。"],["18:00","キャンドルの灯りで過ごす夜","夕食のあと、選んだろうそくを通りで灯します。"],["20:00","宿へ",""]],
+        incl:["ガイド（貸切）","車と運転手","沈金体験・醤油蔵・ろうそく","昼食と夕食"], know:"ほとんど一本の通りを歩いて回ります。"}},
+    "culture-far":{hours:9,
+      en:{hook:"A morning at a Zen temple, then an afternoon with a lacquer artisan.",
+        steps:[["8:30","Leave Nanao","About 1 hr 20 min by car."],["10:00","Sojiji Soin","Walk the grounds of a Zen temple founded in 1321."],["12:00","Lunch on the coast",""],["13:30","A Wajima-nuri artisan's workshop","See how layers of lacquer are applied, and hear the artisan's story."],["15:30","Tea in a host's tatami room",""],["17:30","Back in Nanao",""]],
+        incl:["Private English-speaking guide","Car and driver","Temple and workshop visits","Lunch"], know:"Wajima was hit hard by the 2024 earthquake. The workshops are rebuilding."},
+      ja:{hook:"禅寺で過ごす朝と、輪島塗の職人と過ごす午後。",
+        steps:[["8:30","七尾を出発","車で約1時間20分。"],["10:00","總持寺祖院","1321年開創の禅寺の境内を歩きます。"],["12:00","海辺で昼食",""],["13:30","輪島塗の職人の工房","漆を塗り重ねる仕事を見て、職人の話を聞きます。"],["15:30","ホストの家の和室でお茶",""],["17:30","七尾に戻って解散",""]],
+        incl:["ガイド（貸切）","車と運転手","お寺と工房の見学","昼食"], know:"輪島は2024年の地震で大きな被害を受け、工房は再建の途中です。"}},
+    "active-near":{hours:12,
+      en:{hook:"Paddle the calm bay around Noto Island, then walk its 1 km bridge.",
+        steps:[["8:30","Leave Nanao","About 35 minutes to Noto Island."],["9:00","Private stand-up paddleboarding","Two and a half hours on the bay with an instructor."],["12:00","Lunch on Noto Island",""],["13:00","Walk across Notojima Bridge","1 km over the sea."],["15:00","Rest at your hotel","Time for a hot spring."],["18:00","An evening by candlelight","Dinner and candles on Ipponsugi Street."],["21:00","Back to your hotel",""]],
+        incl:["Private English-speaking guide","Car and driver","SUP gear and instructor","Lunch and dinner"], know:"Paddling depends on wind and waves, so the order may change."},
+      ja:{hook:"穏やかな湾をSUPで漕ぎ、1kmの橋を歩いて渡る。",
+        steps:[["8:30","七尾を出発","能登島まで約35分。"],["9:00","貸切のSUP","インストラクターと2時間半、湾の上へ。"],["12:00","能登島で昼食",""],["13:00","能登島大橋を歩いて渡る","海の上の1km。"],["15:00","宿で休憩","温泉に入る時間。"],["18:00","キャンドルの灯りで過ごす夜","一本杉通りで夕食とキャンドル。"],["21:00","宿へ",""]],
+        incl:["ガイド（貸切）","車と運転手","SUPの道具とインストラクター","昼食と夕食"], know:"SUPは風と波次第で、順番を入れ替えることがあります。"}},
+    "local-near":{hours:10,
+      en:{hook:"Spend a day with the people who are rebuilding their street.",
+        steps:[["10:00","Tea at a local host's home","Start with conversation over tea."],["11:30","Walk the street with its shopkeepers","Owners show you their shops and tell their stories."],["13:00","Lunch on the street",""],["14:30","How they are rebuilding","What happened in the 2024 earthquake, and what they are building now."],["18:00","Dinner at a neighborhood restaurant","Eat where the locals eat."],["20:00","Back to your hotel",""]],
+        incl:["Private English-speaking guide","Car and driver","Lunch and dinner"], know:"Your guide interprets every conversation."},
+      ja:{hook:"通りを立て直している人たちと過ごす一日。",
+        steps:[["10:00","地元のホストの家でお茶","お茶を飲みながら、話すところから。"],["11:30","商店街を店主と歩く","店主が店を案内し、自分の話をしてくれます。"],["13:00","通りで昼食",""],["14:30","再建の話を聞く","2024年の地震で何が起きて、今なにをつくっているのか。"],["18:00","近所の食堂で夕食","地元の人が通う店で。"],["20:00","宿へ",""]],
+        incl:["ガイド（貸切）","車と運転手","昼食と夕食"], know:"少人数なので、店主とゆっくり話せます。"}},
+    "food-near":{hours:11,
+      en:{hook:"Eat it, make it, then taste the master's, all in one day.",
+        steps:[["9:30","Carve your own lacquer chopsticks","At a lacquerware shop on Ipponsugi Street."],["12:00","Lunch at a local sushi counter",""],["13:00","A 100-year-old soy sauce brewery","Press soy sauce by hand."],["14:00","Make nigiri with a chef","A private lesson in a closed sushi restaurant."],["15:30","This year's new rice","Visit a rice farm in Nakanoto."],["18:30","Dinner at a master's counter","The one the locals love."],["20:30","Back to your hotel",""]],
+        incl:["Private English-speaking guide","Car and driver","Chopstick workshop and sushi lesson","Lunch and dinner"], know:"Tell us about allergies, or if you don't eat raw fish."},
+      ja:{hook:"食べて、握って、名人の一貫を味わう一日。",
+        steps:[["9:30","漆の箸を自分で彫る","一本杉通りの漆器店で。"],["12:00","地元の寿司店で昼食",""],["13:00","創業100年の醤油蔵","醤油を手で絞る体験。"],["14:00","職人とにぎり体験","営業時間外の寿司店で、貸切のレッスン。"],["15:30","今年の新米","中能登の田んぼで、米の話を聞きます。"],["18:30","名店のカウンターで夕食","地元の人が通う店。"],["20:30","宿へ",""]],
+        incl:["ガイド（貸切）","車と運転手","箸づくりとにぎり体験","昼食と夕食"], know:"アレルギーや、生魚が苦手な方は事前にお知らせください。"}},
+    "food-far":{hours:11,
+      en:{hook:"Follow sushi to its source: a sake brewery and a fishing port.",
+        steps:[["9:00","Leave Nanao","A morning drive north to the port town of Ushitsu."],["10:30","A sake brewery in brewing season","See how sake is made, and taste it."],["12:00","Sushi lunch in the fishing port",""],["13:30","Walk the port town",""],["18:30","Dinner at a master's counter","The one the locals love."],["20:30","Back to your hotel",""]],
+        incl:["Private English-speaking guide","Car and driver","Brewery visit and tasting","Lunch and dinner"], know:"Brewing season is October to March. You won't be driving, so enjoy the tasting."},
+      ja:{hook:"寿司の源流へ。酒蔵と漁港の町をめぐる一日。",
+        steps:[["9:00","七尾を出発","奥能登の港町・宇出津へ。"],["10:30","仕込みの季節の酒蔵へ","酒づくりを見学して、試飲。"],["12:00","漁港の町で寿司の昼食",""],["13:30","港町を歩く",""],["18:30","名店のカウンターで夕食","地元の人が通う店。"],["20:30","宿へ",""]],
+        incl:["ガイド（貸切）","車と運転手","酒蔵見学と試飲","昼食と夕食"], know:"酒の仕込みは10月〜3月。運転はしないので、試飲も楽しめます。"}}
   };
 
   // photo: image path or URL. Photos show only when all eight cards have one.
@@ -509,7 +616,7 @@ details.org[open] summary{margin-bottom:10px}
   var S, current = "start", busy = false, topCard = null;
   function fresh(){
     S = {id:uuid(), about:{}, order:shuffle(CARDS.map(function(c){ return c.id; })), idx:0, ratings:[], pairs:{}, farReasons:[],
-         pick:null, why:"", price:null, wordsPlus:[], wordsMinus:[], quake:null, t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0};
+         pick:null, why:"", price:null, wordsPlus:[], wordsMinus:[], quake:null, t0:Date.now(), shownAt:0, steps:{}, stepName:null, stepStart:0, det:{}};
     $("why").value = ""; $("memo").value = ""; $("memo-status").textContent = ""; $("org").open = false;
     buildChoice("q-region", REGIONS, function(v){ S.about.region = v; checkAbout(); });
     buildChoice("q-company", COMPANY, function(v){ S.about.company = v; checkAbout(); });
@@ -589,7 +696,9 @@ details.org[open] summary{margin-bottom:10px}
     a.innerHTML = hero +
       '<div class="card-body"><h3 class="card-title">' + esc(x.title) + '</h3><ol class="stops">' + stops + '</ol>' +
       (x.extra ? '<p class="extra">' + esc(x.extra) + '</p>' : '') +
-      '<p class="base">' + esc(t("base")) + '</p></div>';
+      '<p class="base">' + esc(t("base")) + '</p><button class="more" type="button">' + esc(t("more")) + '</button></div>';
+    a.querySelector('.card-body').addEventListener('click', function(){ openSheet(c.id); });
+    var ph = a.querySelector('.card-photo'); if (ph) ph.addEventListener('click', function(e){ if (!e.target.closest('.credit')) openSheet(c.id); });
     return a;
   }
   function renderCard(){
@@ -614,8 +723,10 @@ details.org[open] summary{margin-bottom:10px}
   }
   function rate(r){
     if (busy || !topCard || current !== "cards") return;
+    if (sheetId) closeSheet();
     busy = true;
-    S.ratings.push({id:S.order[S.idx], r:r, ms:Math.round(performance.now() - S.shownAt), pos:S.idx + 1});
+    var rid = S.order[S.idx];
+    S.ratings.push({id:rid, r:r, ms:Math.round(performance.now() - S.shownAt), pos:S.idx + 1, det:Math.round(S.det[rid] || 0)});
     fly(topCard, r).then(function(){
       S.idx++;
       if (S.idx >= S.order.length) { $("bar").style.width = "100%"; show("pairs"); }
@@ -626,10 +737,40 @@ details.org[open] summary{margin-bottom:10px}
   $("b-unsure").addEventListener("click", function(){ rate(0); });
   document.addEventListener("keydown", function(e){
     if (current !== "cards") return;
+    if (e.key === "Escape" && sheetId) { e.preventDefault(); closeSheet(); return; }
     if (/^[1-5]$/.test(e.key)) { e.preventDefault(); rate(Number(e.key)); }
     else if (e.key === "?" || e.key === "0") { e.preventDefault(); rate(0); }
   });
   function ratingOf(id){ for (var i = 0; i < S.ratings.length; i++) if (S.ratings[i].id === id) return S.ratings[i].r; return null; }
+
+  // ---------- flyer (details of one day) ----------
+  var sheetId = null, sheetAt = 0;
+  function openSheet(id){
+    if (busy || current !== "cards" || sheetId) return;
+    var c = BY[id], f = FLY[id], F = f[LANG] || f.en, x = tx(c);
+    var ph = $("fly-photo"); ph.hidden = !USE_PHOTOS;
+    ph.innerHTML = USE_PHOTOS ? imgTag(c) + '<span class="kchip" aria-hidden="true">' + c.k + '</span>' : "";
+    var facts = [t("fly_hours").replace("{n}", f.hours), t("fly_private"), carLine(c), t("base")];
+    $("fly-body").innerHTML = '<h2 class="fly-title" id="fly-title">' + esc(x.title) + '</h2>' +
+      '<p class="fly-hook">' + esc(F.hook) + '</p>' +
+      '<ul class="fly-facts">' + facts.map(function(s){ return '<li>' + esc(s) + '</li>'; }).join("") + '</ul>' +
+      '<p class="fly-h">' + esc(t("fly_day")) + '</p>' +
+      '<ol class="tl">' + F.steps.map(function(s){ return '<li><time>' + esc(s[0]) + '</time><div><b>' + esc(s[1]) + '</b>' + (s[2] ? '<span>' + esc(s[2]) + '</span>' : "") + '</div></li>'; }).join("") + '</ol>' +
+      '<p class="fly-h">' + esc(t("fly_incl")) + '</p>' +
+      '<ul class="incl">' + F.incl.map(function(s){ return '<li>' + esc(s) + '</li>'; }).join("") + '</ul>' +
+      '<p class="fly-h">' + esc(t("fly_know")) + '</p><p class="fly-know">' + esc(F.know) + '</p>' +
+      (c.credit ? '<p class="note">Photo: <a href="' + esc(c.credit.url) + '" target="_blank" rel="noopener">' + esc(c.credit.text) + '</a></p>' : "");
+    sheetId = id; sheetAt = performance.now();
+    $("sheet").hidden = false; document.body.classList.add("lock");
+    $("sheet-panel").scrollTop = 0; $("b-sheet-close").focus();
+  }
+  function closeSheet(){
+    if (!sheetId) return;
+    S.det[sheetId] = (S.det[sheetId] || 0) + (performance.now() - sheetAt);
+    sheetId = null; $("sheet").hidden = true; document.body.classList.remove("lock");
+  }
+  $("b-sheet-close").addEventListener("click", closeSheet);
+  $("sheet").addEventListener("click", function(e){ if (e.target === $("sheet")) closeSheet(); });
 
   // ---------- near vs far ----------
   function renderPairs(){
@@ -695,7 +836,7 @@ details.org[open] summary{margin-bottom:10px}
     $("r-save").textContent = t("saving");
     show("result");
     var payload = {
-      v:4, id:S.id, createdAt:new Date().toISOString(), src:SRC, ui:LANG,
+      v:5, id:S.id, createdAt:new Date().toISOString(), src:SRC, ui:LANG,
       lang:(navigator.language || "").slice(0, 20), mobile:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
       about:{region:S.about.region || "", company:S.about.company || "", maxSpend:S.about.maxSpend || ""},
       order:S.order, ratings:S.ratings, pairs:S.pairs, farReasons:S.farReasons, pick:S.pick, why:(S.why || "").slice(0, 200), price:S.price || "",
